@@ -1,9 +1,7 @@
 import {copyFile,mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
-const root=path.dirname(fileURLToPath(import.meta.url));
-const destination=path.join(root,'dist/vendor');
-await mkdir(destination,{recursive:true});
-const files=[['build/three.module.js','three.module.js'],['examples/jsm/controls/OrbitControls.js','OrbitControls.js'],['examples/jsm/geometries/RoundedBoxGeometry.js','RoundedBoxGeometry.js'],['examples/jsm/exporters/GLTFExporter.js','GLTFExporter.js'],['LICENSE','THREE-LICENSE.txt']];
-try{for(const [source,name] of files)await copyFile(path.join(root,'node_modules/three',source),path.join(destination,name));console.log('Hestia 2.0 renderer files are ready.');}
-catch{console.error('Renderer setup failed. Run npm ci from the project folder, then try again.');process.exit(1);}
+const root=path.dirname(fileURLToPath(import.meta.url)),destination=path.join(root,'dist/vendor');
+const three=[['build/three.module.js','three.module.js'],['examples/jsm/controls/OrbitControls.js','OrbitControls.js'],['examples/jsm/geometries/RoundedBoxGeometry.js','RoundedBoxGeometry.js'],['examples/jsm/exporters/GLTFExporter.js','GLTFExporter.js'],['examples/jsm/controls/TransformControls.js','TransformControls.js'],['examples/jsm/loaders/GLTFLoader.js','loaders/GLTFLoader.js'],['examples/jsm/utils/BufferGeometryUtils.js','utils/BufferGeometryUtils.js'],['examples/jsm/loaders/OBJLoader.js','loaders/OBJLoader.js'],['examples/jsm/loaders/STLLoader.js','loaders/STLLoader.js'],['examples/jsm/exporters/OBJExporter.js','OBJExporter.js'],['examples/jsm/exporters/STLExporter.js','STLExporter.js'],['LICENSE','THREE-LICENSE.txt']];
+const files=[...three.map(([from,to])=>['three',from,to]),['three-bvh-csg','build/index.module.js','csg.js'],['three-bvh-csg','LICENSE','CSG-LICENSE.txt'],['three-mesh-bvh','build/index.module.js','bvh.js'],['three-mesh-bvh','LICENSE','BVH-LICENSE.txt']];
+try{for(const [pkg,from,to] of files){await mkdir(path.dirname(path.join(destination,to)),{recursive:true});await copyFile(path.join(root,'node_modules',pkg,from),path.join(destination,to));}console.log('Hestia modeling dependencies are ready.');}catch(error){console.error('Renderer setup failed. Run npm ci from the project folder.',error.message);process.exit(1);}

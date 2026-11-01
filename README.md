@@ -1,20 +1,12 @@
-# Hestia 2.0 — Home Design Studio
+# Hestia 2.0 — Home Design + Modeling Studio
 
-A desktop-first home design app that runs in your browser. Draw floor plans, arrange furniture in 3D, try materials, and export your design.
+A desktop-first browser app for floor plans, furnished interiors, and custom 3D models, with a local Node.js workspace that saves projects and component libraries on your PC.
 
-**Status: functional core release.** Hestia 2.0 is an independent project, not an official Homestyler product or a complete replacement for professional architectural software.
+**Release 0.2: integrated core CAD tools and local workspace.** This is an independent project. It does **not** implement every SketchUp Pro or Homestyler feature. See [the feature matrix](FEATURES.md) for implemented tools, limitations, and remaining work.
 
+## Run locally
 
-
-## Quick start
-
-### Requirements
-
-- [Node.js](https://nodejs.org/) **20 or newer** (a current LTS version is recommended).
-- A modern Chrome, Edge, Firefox, or Safari browser. The 3D view needs hardware acceleration/WebGL; a 2D fallback is available.
-- Git is optional: use **Code → Download ZIP** instead if you prefer.
-
-### Clone and run
+Install [Node.js](https://nodejs.org/) 20 or newer, then:
 
 ```sh
 git clone https://github.com/harsh-2596/Hestia-2.0.git
@@ -23,174 +15,115 @@ npm ci
 npm start
 ```
 
-Open **[http://127.0.0.1:4173](http://127.0.0.1:4173)**. Keep the terminal open while using the app; press **Ctrl+C** to stop it.
+Open **[http://127.0.0.1:4173](http://127.0.0.1:4173)**. Keep the terminal open; Ctrl+C stops the server. ZIP users can extract the source and run these commands in the folder containing `package.json`. On Windows, use `npm.cmd ci` and `npm.cmd start` if PowerShell blocks npm scripts.
 
-**ZIP users:** extract the ZIP, open a terminal inside the extracted folder containing `package.json`, then run `npm ci` followed by `npm start`.
+No account, API key, external database, or build step is required. Installation downloads pinned dependencies and prepares `dist/vendor/` automatically. Use a browser with WebGL and hardware acceleration for 3D. The interface is designed primarily for a desktop mouse and keyboard. Optional Google Fonts fall back to system fonts.
 
-**Windows PowerShell:** if `npm` is blocked by your script execution policy, use `npm.cmd start`. Use `npm.cmd ci` for installation too. No execution-policy change is needed.
+## What you can do
 
-No API key, account, database, or build is required. Run `npm ci` once: it downloads the pinned Three.js package and automatically prepares the browser modules in `dist/vendor` using `setup-vendor.mjs`. Internet is needed for installation; generated renderer files are not committed to this repository. Google Fonts is optional; system fonts are the fallback.
-
-## Features
-
-| Area | Available features |
+| Workspace | Tools |
 | --- | --- |
-| Floor plans | Rectangular room surfaces, straight walls at any angle, 10 cm snapping, dimensions, door/window openings |
-| 3D editing | Orbit, pan, zoom, camera reset, cutaway/full walls, live updates |
-| Furniture | 19 original procedural model types, search, categories, generated 3D thumbnails |
-| Object editing | Move, resize, rotate, duplicate, delete, change colors |
-| Finishes | Floor materials, wood/tile previews, color presets |
-| Lighting | Daylight and evening scene presets |
-| Blueprints | PNG/JPG/WebP import, positioning, opacity, two-point scale calibration |
-| Projects | Furnished 108 m² sample, blank projects, named independent floors, metric/imperial display |
-| Saving | Local autosave, undo/redo, editable JSON backup/import |
-| Exports | 2D PNG, current-view PNG, GLB model, CSV furniture schedule |
-| Usability | Keyboard shortcuts, reduced-motion support, responsive layout, 2D fallback |
+| Build | Rectangular rooms, angled straight walls, door/window openings, multiple independent floors, blueprint image import and manual scale calibration |
+| Furnish | 19 original procedural furniture types, search, thumbnails, dimensions, positioning, rotation, color, floor finishes, day/evening lighting |
+| Model → Create | Rectangle, circle, polygon, line/path, box, cylinder, sphere, curved pipe path; profile extrusion and offsets |
+| Model → Organize | Multi-selection, flat groups, linked component definitions, make unique, tags, visibility, locking, reusable PC component library |
+| Model inspector | Exact XYZ position, Euler rotation, scale/mirroring; move/rotate/scale gizmos; experimental union/subtract/intersect |
+| Model → Views | Standard camera views, perspective/parallel projection, display styles, visual section clipping, saved scenes |
+| PC workspace | Autosave to disk, multiple named projects, save copy, conflict detection, latest 20 revisions and restore |
+| Exports | Editable JSON, floor-plan/view PNG, current-floor GLB/OBJ/STL, planar DXF linework, scaled A3 SVG sheet, furniture CSV |
 
-## Your first design
+Home and CAD geometry share the project document, floor selection, undo/redo history, 3D scene, and project exports. CAD inspector dimensions and blueprint calibration use **meters**, even when home-design labels display feet.
 
-### Explore the sample
+## First modeling workflow
 
-The app opens **The Sunday House**, a furnished sample. Drag empty space in 3D to orbit, right-drag to pan, and scroll to zoom. Select a furniture piece to edit its dimensions and appearance in the right panel.
+1. Choose **Model → Create → Box**, or choose Rectangle/Polygon and draw in the 2D plan.
+2. Select the model and edit dimensions in the right inspector. A planar profile becomes a solid with **Apply profile extrusion**. Offset changes its outline.
+3. In 3D, use the colored gizmo to move, rotate, or scale. Exact transforms are also available as numeric fields. Negative scale mirrors a model.
+4. Use **Organize** for multi-selection, groups, tags, hide/lock, and the component library. Make a component in the inspector, duplicate it, then change shared geometry to update linked instances. **Make unique** detaches an instance.
+5. Select two closed solids for Union/Subtract/Intersect. Subtract removes the second selected solid from the first. These operations are experimental; keep editable backups.
+6. Open **Views** for parallel plans, sections, styles, and saved scenes. **Files** contains model import/export and the scaled A3 sheet.
 
-### Start from scratch
+In Model mode: **L** line, **R** rectangle, **C** circle, **T** move, **E** rotate, **S** scale, **Enter** finish path, **Esc** cancel, **Ctrl+D** duplicate, **Ctrl+G** group, **Ctrl+Shift+G** ungroup. Use **Ctrl+Z / Ctrl+Shift+Z** for undo/redo. Keyboard tools apply when focus is outside text fields/dialogs.
 
-1. Open **Project → Start a blank home**. Export a backup first if you want to keep your current work.
-2. Choose **Build → Draw a room**, or press **B**.
-3. Click two opposite corners in the 2D canvas. Hestia 2.0 creates a rectangular floor surface and perimeter walls.
-4. Choose a door/window tool and click a wall to add an opening.
-5. Switch to **3D design** to explore the result.
+For home design, choose Build to draw rooms/walls, Furnish to arrange items, and Import to trace a PNG/JPG/WebP blueprint manually. This release does not automatically turn an image into a measured building model.
 
-### Furnish and style
+## Saving on your PC
 
-Choose an item from **Furnish**. New pieces appear near the floor's center. Drag them into place in either view, then edit their dimensions, rotation, or color. Select a room and choose a material to change its floor finish.
+The running server stores JSON records in **`.hestia-data/` beside `server.mjs`**:
 
-### Trace a blueprint
+```text
+.hestia-data/
+  projects/                 Current project records
+    history/<project-id>/   Recovery revisions
+  components/               Reusable component records
+    history/<component-id>/ Recovery revisions
+```
 
-1. Open **Import** and upload a PNG, JPG, or WebP image (up to 10 MB).
-2. Choose **Calibrate a known distance**.
-3. Click two points and enter their actual distance **in meters**, even when the display uses feet.
-4. Adjust the image's position and opacity as needed.
-5. Trace rooms/walls in 2D and check the dimensions.
+Writes use a temporary file, file synchronization, and atomic replacement. A revision check rejects stale writes from another tab. Keep one server process per data directory. The latest 20 recovery revisions are retained; restoring creates a new revision. Browser storage retains a recovery copy of the current project. Wait for saving to finish before stopping the server. On conflict, open the disk version or save browser changes as a new copy.
 
-This is **manual tracing**, not automatic recognition. For PDF/DWG plans, first export the relevant page as an image in your PDF/CAD software.
+**PC workspace → Open** loads a disk project, including from another browser on this PC. Clearing browser data does not erase disk records. Avoid deleting `.hestia-data`; back it up separately. The data folder is excluded from Git and source ZIPs. An app upgrade should preserve it. Keep **Export → Editable project** backups for portable copies; legacy `.forma.json` project files remain supported.
 
-## Saving and backups
+To choose another data directory before starting:
 
-- Autosave keeps **one current project in this browser on this device**.
-- Incognito browsing, clearing site data, changing browser/origin, or storage limits can make that project unavailable.
-- Use **Export → Editable project** to download a `.forma.json` backup.
-- Use **Project → Open a Hestia 2.0 project** to load a backup. Import replaces the current project after confirmation.
-- If local storage is unavailable, the app reports it. Export a backup to preserve your changes.
-- Projects are not uploaded to a cloud service by this release. A hosting provider may collect ordinary access logs, and the optional Google Fonts stylesheet makes an external request.
+```powershell
+$env:HESTIA_DATA_DIR = 'D:\HestiaWorkspace'
+npm.cmd start
+```
 
-## Export formats
+To change ports, set `$env:PORT = '4174'` in PowerShell, or `PORT=4174 npm start` on macOS/Linux. Visit the matching local address. Browser recovery is specific to the address; disk records still appear in PC workspace.
 
-| Format | Contents |
-| --- | --- |
-| `.forma.json` | Editable project, all floors, embedded blueprint reference |
-| Floor-plan PNG | Current floor, 2000 × 1500 pixels |
-| Current-view PNG | Browser preview at current canvas resolution |
-| GLB | Current floor's geometry/materials, using the current cutaway/full-wall setting |
-| CSV | All floors' furniture, dimensions, and illustrative USD reference prices |
+The server binds to `127.0.0.1`, checks Host/Origin and write headers, and is intended for one local OS user. It has no multi-user authentication or cloud synchronization. Do not expose it publicly or use it as a shared network backend without adding authentication and deployment hardening.
 
-GLB files can be opened in compatible 3D software such as Blender. PNG captures are browser previews, not offline photorealistic renders. Prices are examples, not retailer quotations, and exclude labor, tax, delivery, and building materials.
+## File compatibility and limits
 
-## Shortcuts
+- **JSON:** full editable home/CAD document, definitions, tags and scenes. Earlier version-1 home projects remain compatible through the optional CAD field.
+- **GLB/OBJ/STL import:** static triangle geometry only; self-contained files up to 12 MB and 100,000 triangle vertices total. Imported animation, hierarchy, material textures, lights, and parametric history are not preserved. Check units and scale, particularly for OBJ/STL. Draco/compressed GLB is unsupported.
+- **GLB/OBJ/STL export:** current-floor scene, including visible CAD geometry. OBJ does not package textures/MTL; STL has no materials or unit metadata. Exported geometry remains complete when a visual section plane is enabled. Hidden CAD entities/tags are omitted.
+- **DXF:** meter-based straight wall centerlines and supported planar CAD outlines/paths. It omits furniture, imported meshes, spheres, pipe surfaces, annotations, and full 3D solids. No DXF import or DWG/SKP compatibility.
+- **A3 SVG:** current plan at a selected scale that fits the page. Print at 100%/actual size. It is a single sheet, without associative dimensions or LayOut document support.
+- **PNG/CSV:** visual previews and furniture schedule. CAD objects are excluded from furniture pricing; the CSV is not a complete material takeoff.
+- Limits include 2,000 CAD entities, 500 definitions/groups, 200 tags, 100 scenes, and a 16 MB backend request limit. Browser storage may fill earlier with large imports; keep exports.
 
-| Control | Action |
-| --- | --- |
-| V | Select/move |
-| B | Draw a room |
-| W | Draw connected straight walls |
-| D / N | Place door / window |
-| R | Rotate selected furniture 90° |
-| Delete / Backspace | Remove selection |
-| Esc | Cancel drawing and deselect |
-| Ctrl/Cmd + Z | Undo |
-| Ctrl/Cmd + Shift + Z | Redo |
-| Ctrl/Cmd + D | Duplicate furniture or room surface |
-| Ctrl/Cmd + S | Save locally |
-| Drag empty 3D space | Orbit |
-| Right-drag in 3D | Pan |
-| Scroll | Zoom |
-
-Shortcuts are inactive while editing fields or using dialogs. The in-app **Guide** and **Help** provide a tour and control reference.
-
-## Known limitations
-
-- Rooms are rectangular **floor surfaces**. Walls are independently editable; resizing/moving a room does not reposition existing walls. Edit wall endpoints separately. Shared-wall topology is not automatically reconciled.
-- Floors are edited individually, not assembled into one multi-storey model.
-- Automatic blueprint recognition, PDF/DWG import, custom model/texture uploads, and a retail furniture catalog are not implemented.
-- Lamps are decorative; scene lighting presets change the daylight rather than simulating individual lamp emissions.
-- Cloud saving/accounts, simultaneous editing, shared links, AI generation, and offline GPU rendering are not connected.
-- Roof/stair configurators, advanced cabinetry, electrical/plumbing drawings, elevations, DXF/DWG exchange, video/VR, billing, and community features remain future work.
-- This is a visualization tool, not structural engineering or certified permit/construction documentation.
-
-## Development and tests
-
-Install the pinned dependency before running tests:
+## Development and checks
 
 ```sh
 npm ci
 npm test
+npm start
 ```
 
-Ten automated tests cover project validation/serialization, bounds, openings, undo/redo, and generated furniture dimensions. Browser QA covered furniture editing, 2D/3D switching, floor/room creation, exports, and responsive layouts.
+Tests cover original home geometry/validation/history, CAD extrusion/offset/solid volumes/components, disk persistence, revision conflicts, recovery retention, and HTTP access controls. Browser checks cover profile drawing/extrusion, gizmo movement, linked editing, component library, cameras/sections/scenes, and disk workspace interaction. See [VALIDATION.md](VALIDATION.md) for the delivered verification and its limits.
 
 ```text
-dist/
-  index.html       App shell
-  style.css        Responsive interface
-  app.js           Editor, 2D SVG, persistence, imports/exports
-  model.js         Project format, catalog, geometry, validation, history
-  scene.js         Three.js scene, furniture, thumbnails, GLB export
-  vendor/          Generated by npm ci (not committed)
-setup-vendor.mjs   Prepares browser modules after npm ci
-tests/             Node.js tests
-server.mjs         Loopback-only static server
+dist/app.js               Home editor and shared bridge
+ dist/model.js            Project model, catalog, validation, undo/redo
+ dist/scene.js            Three.js home scene and procedural furniture
+ dist/cad-data.js         CAD document and profile validation
+ dist/cad-geometry.js     Geometry, CSG, model imports, DXF
+ dist/cad-studio.js       Integrated modeling UI and scene controls
+ dist/workspace-client.js Disk-save queue and workspace/library UI
+backend/workspace.mjs     Validated revisioned file store and API
+server.mjs                Loopback HTTP server + API
+setup-vendor.mjs          Browser dependency preparation after npm ci
+tests/                    Node tests
 ```
 
-Both views derive from a versioned JSON project document. Stored geometry uses meters; unit switching changes display only. The Node server serves static files and does not store projects.
-
-## Hosting
-
-After running `npm ci` to generate the vendor files, any static host supporting ES modules can serve **the contents of `dist/`**. Preserve relative paths and serve `.js` as JavaScript. Use HTTP/HTTPS rather than opening `index.html` via `file://`. Hosting does not add cloud project synchronization. This repository contains no private Sites deployment configuration.
+A static host can serve `dist/` after `npm ci`; this provides browser-only saving. **The PC workspace requires `npm start` and is not available from static hosting.** This repository includes no private hosting configuration.
 
 ## Troubleshooting
 
-| Problem | Solution |
+| Problem | Action |
 | --- | --- |
-| `node` or `npm` not recognized | Install Node.js and reopen the terminal. |
-| PowerShell blocks npm scripts | Use `npm.cmd start`, `npm.cmd ci`, or `npm.cmd test`. |
-| `package.json` not found | Open a terminal in the extracted/cloned project folder. |
-| Port 4173 already in use | Stop the other app instance or set a different `PORT`. |
-| 3D fails | Update browser/GPU drivers, enable hardware acceleration, or use 2D. |
-| Blueprint scale looks wrong | Calibrate a known distance; images do not have reliable physical scale. |
-| Project missing on another device | Export/import a `.forma.json` backup; storage is local. |
-| Room changed but walls did not | Edit the independent wall endpoints separately. |
+| `node` / `npm` missing | Install Node.js and reopen the terminal. |
+| `package.json` missing | Open the terminal in the extracted/cloned source folder. |
+| Port in use | Stop the other instance, or choose another PORT. |
+| PC workspace button missing | Use the local Node server rather than `file://` or a static host. |
+| Save conflict | Open the disk version or Save as a new copy; export a backup first. |
+| Disk save failed | Check available disk space and directory permissions, then retry in PC workspace. Browser recovery alone is not a backup. |
+| 3D unavailable | Enable hardware acceleration, update GPU drivers, or use 2D. |
+| Solid operation fails | Use closed, clean, overlapping solids with modest triangle counts; undo or reopen your editable backup. |
+| Rooms and walls differ | Room surfaces and wall endpoints are independently editable. |
 
-Choose another port if necessary:
+## Contributing and licenses
 
-```powershell
-# Windows PowerShell
-$env:PORT = "4174"
-npm.cmd start
-```
-
-```sh
-# macOS / Linux
-PORT=4174 npm start
-```
-
-Then open `http://127.0.0.1:4174`.
-
-## Contributing
-
-Bug reports and pull requests are welcome. Include reproduction steps and browser/OS information. Avoid attaching personal blueprints to public issues. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## License and attribution
-
-Original Hestia 2.0 code and procedural furniture are available under the [MIT License](LICENSE). Three.js 0.170.0 is MIT licensed; its notice is copied into `dist/vendor/THREE-LICENSE.txt` during installation. Google Fonts retain their respective font licenses.
-
-No Homestyler branding, models, or client source code is included.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Original code and procedural furniture use the [MIT License](LICENSE). Dependencies: Three.js 0.170.0, three-bvh-csg 0.0.17, and three-mesh-bvh 0.8.3, all MIT; installation copies their license notices to `dist/vendor/`. Google Fonts retain their respective licenses. No SketchUp/Homestyler source, branding, proprietary models, or paid service entitlements are included.

@@ -1,7 +1,7 @@
 # Contributing to Hestia 2.0
 
 1. Fork and clone this repository.
-2. Run `npm ci` to install the pinned dependency.
+2. Run `npm ci` to install the pinned dependencies and prepare browser modules.
 3. Run `npm start` and open http://127.0.0.1:4173.
 4. Make changes on a feature branch.
 5. Run `npm test` and verify the affected workflow in a browser.
@@ -24,6 +24,10 @@
 - Import a blueprint image, calibrate it, and export/reopen a project JSON.
 - Switch units without altering physical dimensions.
 - Export PNG, GLB, JSON, and CSV.
+- Draw/extrude profiles, transform with the gizmo, test linked components and solid operations, and reopen the JSON.
+- Save/open a PC project and library component, restore a revision, and check two-tab stale-save conflicts.
+- Verify OBJ/STL, planar DXF and A3 sheet output within their documented limits.
+- Keep `.hestia-data` and test/user projects out of commits. Use one server process per data directory.
 - Check narrow/wide layouts, keyboard focus, reduced motion, and 2D fallback.
 
 Bug reports should include expected/actual behavior and reproduction steps. Prefer sample geometry or anonymized plans over private blueprints.
