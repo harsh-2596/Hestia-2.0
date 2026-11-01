@@ -86,7 +86,7 @@ This is **manual tracing**, not automatic recognition. For PDF/DWG plans, first 
 
 ## Export formats
 
-| Hestia 2.0t | Contents |
+| Format | Contents |
 | --- | --- |
 | `.forma.json` | Editable project, all floors, embedded blueprint reference |
 | Floor-plan PNG | Current floor, 2000 × 1500 pixels |
