@@ -2,11 +2,11 @@
 
 A desktop-first browser app for floor plans, furnished interiors, and custom 3D models, with a local Node.js workspace that saves projects and component libraries on your PC.
 
-**Release 0.2: integrated core CAD tools and local workspace.** This is an independent project. It does **not** implement every SketchUp Pro or Homestyler feature. See [the feature matrix](FEATURES.md) for implemented tools, limitations, and remaining work.
+**Release 0.3: interior walkthrough, reference finishes and multiple AI image providers.** This is an independent project. It does **not** implement every SketchUp Pro or Homestyler feature. See [the feature matrix](FEATURES.md) for implemented tools, limitations, and remaining work.
 
 ## Run locally
 
-Install [Node.js](https://nodejs.org/) 20 or newer, then:
+Install [Node.js](https://nodejs.org/) 20.12 or newer, then:
 
 ```sh
 git clone https://github.com/harsh-2596/Hestia-2.0.git
@@ -17,7 +17,37 @@ npm start
 
 Open **[http://127.0.0.1:4173](http://127.0.0.1:4173)**. Keep the terminal open; Ctrl+C stops the server. ZIP users can extract the source and run these commands in the folder containing `package.json`. On Windows, use `npm.cmd ci` and `npm.cmd start` if PowerShell blocks npm scripts.
 
-No account, API key, external database, or build step is required. Installation downloads pinned dependencies and prepares `dist/vendor/` automatically. Use a browser with WebGL and hardware acceleration for 3D. The interface is designed primarily for a desktop mouse and keyboard. Optional Google Fonts fall back to system fonts.
+The model editor, walkthrough and reference finishes require no account or API key. AI image generation requires your own provider API key and account access. No external database or build step is required. Installation downloads pinned dependencies and prepares `dist/vendor/` automatically. Use a browser with WebGL and hardware acceleration for 3D. The interface is designed primarily for a desktop mouse and keyboard. Optional Google Fonts fall back to system fonts.
+
+## Explore, restyle and render
+
+Choose **Explore** in the left rail. **Walkthrough** enters the current floor at eye level: drag to look, use WASD/arrows to move, Q/E to turn, and the floor map or room list to jump. Walls and door openings constrain movement. Furniture collisions, stairs and automatic routing are not simulated.
+
+**Reference** accepts a downloaded Pinterest image or your own PNG/JPEG/WebP (up to 10 MB). Crop a clean material patch if needed, choose a wall or room floor, and apply the image as a tiled/stretched finish. This changes the actual 3D model, supports Undo, and saves/exports with the project. Reference-only drafts remain in the current tab until used; applied finishes are embedded in project JSON. A full room photo applied as a texture is still a photo on a surface, not reconstructed furniture or geometry.
+
+**AI renders** captures a 1536 × 1024 model view, then sends it with your prompt and optional reference to a selected provider. Wall mode captures a surface mask while protecting window/glass/frame and foreground geometry in the mask. OpenAI-style services receive an alpha mask; Gemini receives it as a visual guide. Models may still change details outside the intended region. Generated images do not edit the underlying 3D mesh.
+
+**Generate floor tour** captures four directions per room and submits requests sequentially after showing the total image count. Stop after current image prevents remaining requests; it cannot undo the current provider charge. Leaving Explore also stops further tour requests after the current one. Completed images are grouped by tour and room: change rooms, look left/right, or drag horizontally to select another direction. This is a linked viewpoint tour, **not a seamless 360-degree panorama or a continuous AI-generated 3D world**. Independent images may differ in style, objects and dimensions. Return to the real model to walk and look freely.
+
+### Connect multiple AI providers privately
+
+Copy `.env.example` to `.env` beside `server.mjs`, enter keys in a local text editor, and restart Hestia. Do not commit or share `.env`. Existing environment variables take precedence.
+
+| Provider | Settings | Protocol |
+| --- | --- | --- |
+| OpenAI | `OPENAI_API_KEY`, optional `HESTIA_OPENAI_MODEL` | Multipart Images Edits with source/reference/mask; base64 output |
+| Google Gemini | `GEMINI_API_KEY`, optional `HESTIA_GEMINI_MODEL` | Native generateContent with inline images and image response |
+| OpenAI-compatible | `HESTIA_COMPATIBLE_API_KEY`, `HESTIA_COMPATIBLE_EDIT_URL`, `HESTIA_COMPATIBLE_MODEL`, optional `HESTIA_COMPATIBLE_NAME` | Must implement multipart image edits and return `data[0].b64_json` |
+
+Defaults are `gpt-image-2.5-sunburst` and `gemini-nano-banana-2.1`, based on the checked official docs. Model access and availability depend on your provider account; both are configurable. A compatible endpoint must be HTTPS, or an HTTP loopback service. The server sends its configured compatible key only to that configured service, so enter its exact trusted edit endpoint. It does not support arbitrary provider protocols just by changing a URL.
+
+Keys stay on the server and are excluded from status responses/projects. **Generate** transmits the captured view, reference, prompt and any mask to your selected provider; their usage charges/policies apply. Hestia does not use your ChatGPT/Gemini consumer sign-in and does not automatically retry or switch providers. Generation runs one request at a time, with a five-minute provider timeout.
+
+Render metadata and source/reference/result images are saved under `.hestia-data/renders/<id>/`. Gallery comparisons show the original capture beside the generated image and flag model changes. Back up the entire data directory: project JSON exports include applied finishes but do **not** bundle the separate render collection. Server restarts mark unfinished jobs interrupted, without paid retries. Batch scheduling runs in the browser; keep the tab open to finish a tour. Previously completed images remain saved.
+
+AI adapters and render/gallery/tour transport have automated and local-fixture coverage. **No live paid provider render was verified in this delivery because no real API key was configured.** Fixtures used to test the viewer are explicitly labelled and are not AI examples or shipped assets.
+
+Reference API documentation: [OpenAI image editing](https://developers.openai.com/api/reference/resources/images/methods/edit), [OpenAI image generation](https://developers.openai.com/api/docs/guides/image-generation), [Gemini image generation/editing](https://ai.google.dev/gemini-api/docs/generate-content/image-generation).
 
 ## What you can do
 

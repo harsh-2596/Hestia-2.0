@@ -1,3 +1,4 @@
+import {validateFinish} from './interior-data.js';
 import {validateCAD} from './cad-data.js';
 export const uid=()=>globalThis.crypto.randomUUID();
 export const round=n=>Math.round(n*100)/100;
@@ -37,7 +38,7 @@ for(const r of f.rooms){checkId(r);if(!text(r.name)||![r.x,r.z].every(n=>finite(
 for(const w of f.walls){checkId(w);if(![w.x1,w.x2,w.z1,w.z2].every(n=>finite(n,-200,200))||Math.hypot(w.x2-w.x1,w.z2-w.z1)<.1||!finite(w.height,.2,10)||!finite(w.thickness,.02,1)||!/^#[0-9a-f]{6}$/i.test(w.color)||!Array.isArray(w.openings))throw Error('Invalid wall geometry.');for(const o of w.openings){checkId(o);if(!['door','window'].includes(o.type)||!finite(o.offset,0,500)||!finite(o.width,.2,10)||o.offset+o.width/2>Math.hypot(w.x2-w.x1,w.z2-w.z1)||o.offset-o.width/2<0)throw Error('Invalid wall opening.');}}
 for(const i of f.items){checkId(i);if(!CATALOG.some(c=>c.type===i.type)||![i.x,i.z].every(n=>finite(n,-200,200))||![i.w,i.d,i.h].every(n=>finite(n,.01,20))||!finite(i.rotation,-3600,3600)||!/^#[0-9a-f]{6}$/i.test(i.color)||!finite(i.price,0,1000000)||!text(i.name))throw Error('Invalid furniture.');}
 if(f.blueprint&&(!/^data:image\/(png|jpeg|webp);base64,/.test(f.blueprint.src)||f.blueprint.src.length>4000000||![f.blueprint.x,f.blueprint.z].every(n=>finite(n,-200,200))||![f.blueprint.w,f.blueprint.d].every(n=>finite(n,.1,100))))throw Error('Invalid blueprint.');}
-for(const f of p.floors)for(const i of f.items)if(i.category!==CATALOG.find(c=>c.type===i.type)?.category)throw Error('Invalid furniture category.');if(p.cad)validateCAD(p.cad,p.floors.map(f=>f.id),ids);return p;}
+for(const f of p.floors)for(const i of f.items)if(i.category!==CATALOG.find(c=>c.type===i.type)?.category)throw Error('Invalid furniture category.');for(const f of p.floors)for(const object of [...f.walls,...f.rooms])if(object.finish)validateFinish(object.finish);if(p.cad)validateCAD(p.cad,p.floors.map(f=>f.id),ids);return p;}
 export function floorBounds(f){const pts=[...f.rooms.flatMap(r=>[[r.x,r.z],[r.x+r.w,r.z+r.d]]),...f.walls.flatMap(w=>[[w.x1,w.z1],[w.x2,w.z2]])];if(!pts.length)return{x:0,z:0,w:12,d:9};const xs=pts.map(p=>p[0]),zs=pts.map(p=>p[1]);return{x:Math.min(...xs),z:Math.min(...zs),w:Math.max(...xs)-Math.min(...xs),d:Math.max(...zs)-Math.min(...zs)};}
 export const floorArea=f=>round(f.rooms.reduce((n,r)=>n+r.w*r.d,0));
 export function openingAt(w,x,z,type){const dx=w.x2-w.x1,dz=w.z2-w.z1,L=Math.hypot(dx,dz);const width=type==='door'?.9:1.4;if(L<width+.1)return null;const offset=Math.max(width/2+.02,Math.min(L-width/2-.02,((x-w.x1)*dx+(z-w.z1)*dz)/L));if(w.openings.some(o=>Math.abs(o.offset-offset)<(o.width+width)/2+.1))return null;return{id:uid(),type,offset:round(offset),width};}
