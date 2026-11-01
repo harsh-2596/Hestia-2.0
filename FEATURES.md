@@ -1,6 +1,6 @@
 # Feature coverage and remaining work
 
-Hestia 2.0 v0.2 delivers a first integrated modeling release. **Full SketchUp Pro parity is not delivered.** The following maps the requested professional workflow to actual implementation rather than treating UI buttons as feature completion.
+Hestia 2.0 v0.3 delivers a first integrated modeling release. **Full SketchUp Pro parity is not delivered.** The following maps the requested professional workflow to actual implementation rather than treating UI buttons as feature completion.
 
 | Capability | Delivered behavior | Remaining scope |
 | --- | --- | --- |
@@ -8,7 +8,7 @@ Hestia 2.0 v0.2 delivers a first integrated modeling release. **Full SketchUp Pr
 | Solid creation | Box, cylinder, sphere; positive/negative profile extrusion; simple polygon offset; curved pipe path | Interactive per-face Push/Pull, arbitrary Follow Me/sweep, lofts, holes in profiles, face intersections |
 | Transforms | XYZ gizmos, exact translation/rotation/scale, mirror, duplicate, multi-selection | Arrays, full protractor/tape-measure inference, arbitrary pivot tools; nonuniform group transforms can lose shear |
 | Organization | Flat groups, tags, hide/lock, linked component geometry and make-unique | Nested scene graph, dynamic/live-component formulas, externally referenced assemblies |
-| Materials | Existing floor finishes/furniture colors; CAD instance color; textured/mono/wireframe/x-ray display | CAD texture authoring, UV editing, style builder, sketch edges, photorealistic rendering |
+| Materials | Existing finishes/colors, uploaded/cropped reference finishes on walls/floors; CAD instance color and display styles | General CAD texture authoring, UV editing, style builder and physically accurate rendering |
 | Solid operations | Experimental mesh union, subtract, intersect | Robust solid kernel, trim/split/outer-shell workflows, watertightness repair, production CAD precision guarantees |
 | Cameras and scenes | Standard views, parallel/perspective cameras, saved cameras/view settings, visual clipping plane | Capped sections, section drawings, scene animation and video export; scenes do not snapshot per-tag visibility |
 | Documentation | Single scaled A3 SVG plan and existing PNG/schedule exports | LayOut-like multi-page editor, linked model viewports, associative dimensions, title-block templates, PDF publishing |
@@ -16,7 +16,7 @@ Hestia 2.0 v0.2 delivers a first integrated modeling release. **Full SketchUp Pr
 | Local backend | Disk projects/components, validated writes, revision conflicts, latest 20 recovery revisions, restoration, browser recovery | Database indexing/search, migrations across future schema versions, multi-user access, encrypted backups/cloud sync |
 | Extensions/ecosystem | Original procedural assets and a local reusable model library | Ruby/C API compatibility, Extension Warehouse, 3D Warehouse, Trimble Connect, third-party extension execution |
 | Site/context | Manual blueprint tracing and independent floors | Geolocation, terrain, aerial imagery, point clouds, energy/analysis integrations |
-| AI/mobile/collaboration | Browser app with responsive home interface | AI generation/credits, native iPad/AR, live collaboration, shared permissions and team accounts |
+| AI/walkthrough/mobile | Eye-level model navigation; reference finishes; server-side OpenAI/Gemini/compatible adapters; masked viewpoint edits, sequential floor tours, local gallery and comparisons | Live paid provider validation requires a configured key; seamless AI panorama/3D reconstruction, automatic geometry restyling, native iPad/AR, collaboration and team accounts remain unavailable |
 
 ## Evidence and basis
 

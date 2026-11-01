@@ -31,3 +31,11 @@
 - Check narrow/wide layouts, keyboard focus, reduced motion, and 2D fallback.
 
 Bug reports should include expected/actual behavior and reproduction steps. Prefer sample geometry or anonymized plans over private blueprints.
+
+## Interior experience checks
+
+- Walk through each sample room; test door passage, wall blocking, map jumps, mouse look, keyboard controls and exit back to model editing.
+- Upload/crop a reference, apply to a wall and floor, undo, export/reopen, and reload after disk autosave.
+- With no keys configured, confirm clear setup guidance and no external requests. Keep keys out of source and browser storage.
+- Test provider adapters with transport fixtures. Label any fixture output explicitly; never present it as AI generation.
+- With a separately authorized provider account, test model/reference/mask inputs, a single render, comparisons/downloads, and explicit batch start/stop. Report live-quality verification separately from fixture checks.

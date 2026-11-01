@@ -1,4 +1,4 @@
-# Validation — Hestia 2.0 v0.2
+# Validation — Hestia 2.0 v0.3
 
 Verified on Windows with Node.js 24.22.1 and a Chromium browser. This records the core CAD/local workspace release; it is not a certification of full SketchUp Pro compatibility.
 
@@ -35,3 +35,11 @@ Screenshots of the local modeling workspace and PC storage interface accompany t
 ## Limits of this validation
 
 This is targeted functional coverage. It does not establish professional modeling accuracy, exhaustive boolean robustness, every import/export variant, all GPU/browser combinations, multi-process file-store safety, production web security, or parity with SketchUp/LayOut/Trimble services. Native CAD formats, topology editing, cloud accounts and other missing work are explicitly listed in [FEATURES.md](FEATURES.md). The server must remain local and one process must own each data directory.
+
+## Release 0.3 — interior experience verification
+
+All **37 automated tests pass**. The additional checks cover walk movement through doors versus blocked walls and floor boundaries, reference-finish validation/round trips, image/request validation, OpenAI-compatible multipart and native Gemini request/response contracts, sanitized provider errors, durable image jobs, interrupted-job handling, concurrency guards, key-free status responses and image downloads. Windows status polling initially exposed an EPERM rename race; active jobs now serve status from memory and atomic metadata replacement retries transient file locks.
+
+Browser checks exercised eye-level navigation, room jumps, model-view capture, wall-mask capture, missing-key guidance, reference-image upload and finish application in the actual 3D scene. A separate local service labelled **TEST FIXTURE (no AI)** echoed screenshots only to exercise the gallery, comparison and four-directions-per-room tour UI. It makes no external requests and is not part of the delivered source. No fixture is presented as an AI render.
+
+No real provider key was configured, so live paid image quality, account access, quota and cross-view consistency remain unverified. The release provides configured API adapters and honest connection/error states rather than claiming a generated AI house exists. Linked AI viewpoint images are not a seamless 360 panorama or newly reconstructed 3D geometry.
