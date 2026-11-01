@@ -1,6 +1,6 @@
 {
   "name": "hestia-studio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A browser-based 2D/3D home design studio with furniture, blueprint tracing, and portable exports.",
   "private": true,
   "type": "module",
@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/harsh-2596/Hestia-2.0#readme",
   "dependencies": {
-    "three": "0.170.0"
+    "three": "0.170.0",
+    "three-bvh-csg": "0.0.17",
+    "three-mesh-bvh": "0.8.3"
   }
 }
