@@ -1,0 +1,43 @@
+export const uid=()=>globalThis.crypto.randomUUID();
+export const round=n=>Math.round(n*100)/100;
+export const MATERIALS=[{id:'oak',name:'Natural oak',color:'#c5a47d',kind:'wood'},{id:'walnut',name:'Smoked walnut',color:'#79614d',kind:'wood'},{id:'stone',name:'Limestone',color:'#c9c6bc',kind:'tile'},{id:'terrazzo',name:'Warm terrazzo',color:'#b8ada0',kind:'tile'},{id:'concrete',name:'Soft concrete',color:'#9fa3a1',kind:'tile'},{id:'ivory',name:'Ivory white',color:'#efeee6',kind:'plain'},{id:'sage',name:'Sage green',color:'#879481',kind:'plain'},{id:'clay',name:'Terracotta',color:'#b87862',kind:'plain'},{id:'charcoal',name:'Charcoal',color:'#484949',kind:'plain'}];
+export const CATALOG=[
+{type:'sofa',name:'Arc three-seat sofa',category:'Living',w:2.5,d:1,h:.78,color:'#bac3ac',price:1250},
+{type:'chair',name:'Teddy lounge chair',category:'Living',w:.86,d:.84,h:.85,color:'#dfd1bb',price:460},
+{type:'coffee',name:'Pebble coffee table',category:'Living',w:1.25,d:.68,h:.36,color:'#82654c',price:280},
+{type:'rug',name:'Woven wool rug',category:'Decor',w:3,d:2.2,h:.025,color:'#d7cbb8',price:210},
+{type:'plant',name:'Indoor olive tree',category:'Decor',w:.65,d:.65,h:1.65,color:'#708466',price:130},
+{type:'lamp',name:'Orbit floor lamp',category:'Lighting',w:.45,d:.45,h:1.7,color:'#e4d1b6',price:180},
+{type:'bed',name:'Linen platform bed',category:'Bedroom',w:1.8,d:2.15,h:.65,color:'#ded5c6',price:950},
+{type:'nightstand',name:'Oak bedside table',category:'Bedroom',w:.5,d:.45,h:.48,color:'#a9825c',price:160},
+{type:'wardrobe',name:'Linear wardrobe',category:'Bedroom',w:2,d:.62,h:2.25,color:'#c1af95',price:820},
+{type:'dining',name:'Gather dining table',category:'Dining',w:1.8,d:.9,h:.76,color:'#b58c60',price:640},
+{type:'diningchair',name:'Form dining chair',category:'Dining',w:.48,d:.5,h:.82,color:'#a8815c',price:120},
+{type:'cabinet',name:'Kitchen base cabinet',category:'Kitchen',w:1.2,d:.62,h:.9,color:'#aeb59f',price:390},
+{type:'island',name:'Stone kitchen island',category:'Kitchen',w:2,d:.9,h:.94,color:'#c6c0b3',price:1200},
+{type:'fridge',name:'Integrated refrigerator',category:'Kitchen',w:.7,d:.7,h:1.9,color:'#b2b7b6',price:780},
+{type:'bath',name:'Freestanding bath',category:'Bathroom',w:1.7,d:.78,h:.6,color:'#ecece7',price:740},
+{type:'vanity',name:'Floating oak vanity',category:'Bathroom',w:1.2,d:.5,h:.8,color:'#ad8660',price:490},
+{type:'toilet',name:'Compact toilet',category:'Bathroom',w:.4,d:.68,h:.75,color:'#eeeeea',price:250},
+{type:'desk',name:'Studio writing desk',category:'Office',w:1.4,d:.65,h:.75,color:'#a88462',price:320},
+{type:'shelf',name:'Open bookcase',category:'Office',w:1.2,d:.35,h:1.8,color:'#a88462',price:340}
+];
+export function item(type,x,z,rotation=0){const def=CATALOG.find(a=>a.type===type);if(!def)throw Error('Unknown furniture type');return{...def,id:uid(),x,z,rotation};}
+export function wall(x1,z1,x2,z2,openings=[]){return{id:uid(),x1,z1,x2,z2,height:2.7,thickness:.14,color:'#e8e5dc',openings};}
+export function createFloor(name='Ground floor',sample=true){const f={id:uid(),name,elevation:0,rooms:[],walls:[],items:[],blueprint:null};if(!sample)return f;
+f.rooms=[{id:uid(),name:'Living & dining',x:0,z:0,w:8,d:5.5,material:'oak'},{id:uid(),name:'Kitchen',x:8,z:0,w:4,d:5.5,material:'stone'},{id:uid(),name:'Bedroom',x:0,z:5.5,w:6,d:3.5,material:'oak'},{id:uid(),name:'Study',x:6,z:5.5,w:3,d:3.5,material:'oak'},{id:uid(),name:'Bathroom',x:9,z:5.5,w:3,d:3.5,material:'stone'}];
+f.walls=[wall(0,0,12,0,[{id:uid(),type:'window',offset:2,width:2},{id:uid(),type:'window',offset:7,width:1.8}]),wall(12,0,12,9,[{id:uid(),type:'window',offset:2,width:1.5}]),wall(12,9,0,9,[{id:uid(),type:'window',offset:2,width:1.3},{id:uid(),type:'window',offset:8,width:1.5}]),wall(0,9,0,0,[{id:uid(),type:'door',offset:5,width:1.1}]),wall(0,5.5,12,5.5,[{id:uid(),type:'door',offset:3,width:1},{id:uid(),type:'door',offset:7,width:.85},{id:uid(),type:'door',offset:10,width:.85}]),wall(6,5.5,6,9),wall(9,5.5,9,9)];
+f.items=[item('rug',3,2.8),item('sofa',3,1.1),item('coffee',3.1,2.7),item('chair',1,3.2,-25),item('plant',.7,.7),item('lamp',4.8,1),item('dining',6.3,3),item('diningchair',5.9,2.2),item('diningchair',6.7,2.2),item('diningchair',5.9,3.8,180),item('diningchair',6.7,3.8,180),item('cabinet',9,.45),item('cabinet',10.25,.45),item('fridge',11.4,.5),item('island',10.1,3),item('bed',2.9,7.6),item('nightstand',1.6,7.9),item('nightstand',4.2,7.9),item('wardrobe',.45,7.2,90),item('desk',7.5,8.55),item('diningchair',7.5,7.7),item('shelf',6.3,6.4,90),item('plant',8.5,6.1),item('bath',10.6,8.3),item('vanity',11.6,6.4,90),item('toilet',9.6,6.4)];return f;}
+export function createProject(){return{version:1,id:uid(),name:'The Sunday House',units:'m',floors:[createFloor()],updatedAt:new Date().toISOString()};}
+export function validateProject(p){if(!p||p.version!==1||!Array.isArray(p.floors)||!p.floors.length||p.floors.length>20)throw Error('This is not a supported Hestia 2.0 project.');const finite=(n,min,max)=>typeof n==='number'&&Number.isFinite(n)&&n>=min&&n<=max;const text=(s,n=120)=>typeof s==='string'&&s.length<=n;
+if(!text(p.name)||!text(p.id)||!['m','ft'].includes(p.units))throw Error('Invalid project details.');const ids=new Set();const checkId=v=>{if(!text(v.id)||ids.has(v.id))throw Error('Invalid or duplicate object ID.');ids.add(v.id);};
+for(const f of p.floors){checkId(f);if(!text(f.name)||!finite(f.elevation,-50,1000)||!Array.isArray(f.rooms)||!Array.isArray(f.walls)||!Array.isArray(f.items)||f.rooms.length>500||f.walls.length>2000||f.items.length>2000)throw Error('Invalid floor or too many objects.');
+for(const r of f.rooms){checkId(r);if(!text(r.name)||![r.x,r.z].every(n=>finite(n,-200,200))||![r.w,r.d].every(n=>finite(n,.2,100))||!MATERIALS.some(m=>m.id===r.material))throw Error('Invalid room geometry.');}
+for(const w of f.walls){checkId(w);if(![w.x1,w.x2,w.z1,w.z2].every(n=>finite(n,-200,200))||Math.hypot(w.x2-w.x1,w.z2-w.z1)<.1||!finite(w.height,.2,10)||!finite(w.thickness,.02,1)||!/^#[0-9a-f]{6}$/i.test(w.color)||!Array.isArray(w.openings))throw Error('Invalid wall geometry.');for(const o of w.openings){checkId(o);if(!['door','window'].includes(o.type)||!finite(o.offset,0,500)||!finite(o.width,.2,10)||o.offset+o.width/2>Math.hypot(w.x2-w.x1,w.z2-w.z1)||o.offset-o.width/2<0)throw Error('Invalid wall opening.');}}
+for(const i of f.items){checkId(i);if(!CATALOG.some(c=>c.type===i.type)||![i.x,i.z].every(n=>finite(n,-200,200))||![i.w,i.d,i.h].every(n=>finite(n,.01,20))||!finite(i.rotation,-3600,3600)||!/^#[0-9a-f]{6}$/i.test(i.color)||!finite(i.price,0,1000000)||!text(i.name))throw Error('Invalid furniture.');}
+if(f.blueprint&&(!/^data:image\/(png|jpeg|webp);base64,/.test(f.blueprint.src)||f.blueprint.src.length>4000000||![f.blueprint.x,f.blueprint.z].every(n=>finite(n,-200,200))||![f.blueprint.w,f.blueprint.d].every(n=>finite(n,.1,100))))throw Error('Invalid blueprint.');}
+for(const f of p.floors)for(const i of f.items)if(i.category!==CATALOG.find(c=>c.type===i.type)?.category)throw Error('Invalid furniture category.');return p;}
+export function floorBounds(f){const pts=[...f.rooms.flatMap(r=>[[r.x,r.z],[r.x+r.w,r.z+r.d]]),...f.walls.flatMap(w=>[[w.x1,w.z1],[w.x2,w.z2]])];if(!pts.length)return{x:0,z:0,w:12,d:9};const xs=pts.map(p=>p[0]),zs=pts.map(p=>p[1]);return{x:Math.min(...xs),z:Math.min(...zs),w:Math.max(...xs)-Math.min(...xs),d:Math.max(...zs)-Math.min(...zs)};}
+export const floorArea=f=>round(f.rooms.reduce((n,r)=>n+r.w*r.d,0));
+export function openingAt(w,x,z,type){const dx=w.x2-w.x1,dz=w.z2-w.z1,L=Math.hypot(dx,dz);const width=type==='door'?.9:1.4;if(L<width+.1)return null;const offset=Math.max(width/2+.02,Math.min(L-width/2-.02,((x-w.x1)*dx+(z-w.z1)*dz)/L));if(w.openings.some(o=>Math.abs(o.offset-offset)<(o.width+width)/2+.1))return null;return{id:uid(),type,offset:round(offset),width};}
+export class History{constructor(limit=60){this.undoStack=[];this.redoStack=[];this.limit=limit;}push(p){this.undoStack.push(JSON.stringify(p));if(this.undoStack.length>this.limit)this.undoStack.shift();this.redoStack=[];}undo(p){if(!this.undoStack.length)return null;this.redoStack.push(JSON.stringify(p));return JSON.parse(this.undoStack.pop());}redo(p){if(!this.redoStack.length)return null;this.undoStack.push(JSON.stringify(p));return JSON.parse(this.redoStack.pop());}}
