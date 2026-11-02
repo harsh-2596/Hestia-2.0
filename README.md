@@ -2,11 +2,34 @@
 
 A desktop-first browser app for floor plans, furnished interiors, and custom 3D models, with a local Node.js workspace that saves projects and component libraries on your PC.
 
-**Release 0.3: interior walkthrough, reference finishes and multiple AI image providers.** This is an independent project. It does **not** implement every SketchUp Pro or Homestyler feature. See [the feature matrix](FEATURES.md) for implemented tools, limitations, and remaining work.
+**Release 0.5: curated Auto Free image routing, OpenRouter free vision, reviewed plan reconstruction, constrained alternatives, sourced Vastu guidance and a spherical AI-tour workflow.** This is an independent project. It does **not** implement every SketchUp Pro or Homestyler feature. See [the feature matrix](FEATURES.md) for implemented tools, limitations, and remaining work.
+
+
+## Curated Auto Free (0.5)
+
+Open **AI models** to test FLUX 2 Klein 4B or Qwen Image 2 through ImageRouter. Free pricing alone never admits a model to Auto Free: inspect a real output and approve geometry, materials, lighting and realism; panorama approval also needs seam/projection checks. Approvals are separate by task and can be removed. No automatic approval or independent image-quality certification is claimed. Pricing/capabilities are checked on every request, and one model stays pinned across a floor tour. No paid or unverified-price fallback is selected. Add IMAGEROUTER_API_KEY privately to .env; see [complete configuration](AI-SETUP.md).
+
+Plan lab also offers curated free OpenRouter vision for analysis, alternative proposals and interior briefs using OPENROUTER_API_KEY. This is separate from image generation. Live image quality has not been verified because no ImageRouter credential/test output is configured yet.
+
+## Plan lab and AI tour (0.4)
+
+**[Cloudflare and ComfyUI configuration — complete setup steps](AI-SETUP.md)**. Auto Free is the initial tour selection; Cloudflare and ComfyUI remain available. The README and setup guide use placeholders, never private credentials.
+
+1. **Detect:** load PNG/JPEG/WebP or select a PDF page. Crop the building, select two known dimension endpoints (or enter pixel coordinates) and enter their measured separation. Run local line detection. Optional Cloudflare vision reconstructs semantic geometry from that calibrated crop. The crop is sent only when you click the Cloudflare action.
+2. **Review:** open the draft in the existing 2D/3D editor; correct walls, rooms, openings, missing drawn objects and measurements. Classify walls; unclassified walls remain locked. Fixed stairs, ramps, parking/vehicles, lift shafts, columns and services have schematic editable geometry. Empty slabs cannot be approved.
+3. **Approve:** confirm measurements and elements to save an unchanged baseline. Undo/redo, disk history, browser recovery and project exports remain available. Restore original creates an editable change without deleting alternatives.
+4. **Inputs:** confirm room purpose, entrance, occupancy, budget amount/currency/scope and allowed changes. Confirm north and record its source when known. An unconfirmed north produces Unknown directional findings; stairs’ UP labels never establish north.
+5. **Alternatives:** generate up to three local furnishing proposals or request structured Cloudflare proposals. Validate locked geometry, room overlaps, furniture/wall collisions, openings, door approaches and coarse access connectivity. The footprint, fixed objects and structural/unclassified walls stay locked. Room topology and arbitrary partition redesign are not automatically solved. Candidate counts can be below three, with reasons. Apply one as a new editable revision, reject it, or submit a revised/combined floor JSON for validation.
+6. **Vastu:** review attributed, versioned General Vastu Guidance, with Aligned / Conflict / Unknown / Not applicable. Residential rules are excluded from commercial premises. Current findings appear on the 2D plan; stale reports are flagged. Each conflict retains its status when a practical response or optional sourced traditional remedy is recorded. Traditional suggestions are belief-based and carry no guaranteed corrective effect.
+7. **Design and tour:** edit your own style/material/lighting/ceiling/retained-furniture brief or request three Cloudflare directions. Preview a spherical model capture without AI. Generate one real 2:1 room panorama with Cloudflare or local ComfyUI, review it, then approve to unlock the remaining rooms. Existing paid adapters remain available for flat room/wall edits. No silent provider fallback occurs.
+
+Version-1 documents remain loadable. New planning records use project version 2; the original model, variants, assessment context, reports, chosen responses, briefs and panorama approvals are separate records within the project. Image jobs are stored separately on disk.
+
+**Acceptance status:** deterministic logic and API contracts are tested. The supplied office plan remains a private, manually corrected review draft: local line detection found 43 candidates and no reliable enclosed rooms. Fully automatic semantic reconstruction, an owner-approved model, live provider panorama quality and whole-floor consistency are not yet verified. This is a development release, not full acceptance of every item in the requested plan.
 
 ## Run locally
 
-Install [Node.js](https://nodejs.org/) 20.12 or newer, then:
+Install [Node.js](https://nodejs.org/) 20.16 or newer, then:
 
 ```sh
 git clone https://github.com/harsh-2596/Hestia-2.0.git
@@ -17,7 +40,7 @@ npm start
 
 Open **[http://127.0.0.1:4173](http://127.0.0.1:4173)**. Keep the terminal open; Ctrl+C stops the server. ZIP users can extract the source and run these commands in the folder containing `package.json`. On Windows, use `npm.cmd ci` and `npm.cmd start` if PowerShell blocks npm scripts.
 
-The model editor, walkthrough and reference finishes require no account or API key. AI image generation requires your own provider API key and account access. No external database or build step is required. Installation downloads pinned dependencies and prepares `dist/vendor/` automatically. Use a browser with WebGL and hardware acceleration for 3D. The interface is designed primarily for a desktop mouse and keyboard. Optional Google Fonts fall back to system fonts.
+The model editor, walkthrough and reference finishes require no account or API key. Cloudflare generation needs your account/token; optional local ComfyUI uses an installed checkpoint and no hosted API key. Both are documented in [AI-SETUP.md](AI-SETUP.md). No external database or build step is required. Installation downloads pinned dependencies and prepares `dist/vendor/` automatically. Use a browser with WebGL and hardware acceleration for 3D. The interface is designed primarily for a desktop mouse and keyboard. Optional Google Fonts fall back to system fonts.
 
 ## Explore, restyle and render
 
@@ -27,7 +50,7 @@ Choose **Explore** in the left rail. **Walkthrough** enters the current floor at
 
 **AI renders** captures a 1536 × 1024 model view, then sends it with your prompt and optional reference to a selected provider. Wall mode captures a surface mask while protecting window/glass/frame and foreground geometry in the mask. OpenAI-style services receive an alpha mask; Gemini receives it as a visual guide. Models may still change details outside the intended region. Generated images do not edit the underlying 3D mesh.
 
-**Generate floor tour** captures four directions per room and submits requests sequentially after showing the total image count. Stop after current image prevents remaining requests; it cannot undo the current provider charge. Leaving Explore also stops further tour requests after the current one. Completed images are grouped by tour and room: change rooms, look left/right, or drag horizontally to select another direction. This is a linked viewpoint tour, **not a seamless 360-degree panorama or a continuous AI-generated 3D world**. Independent images may differ in style, objects and dimensions. Return to the real model to walk and look freely.
+**Generate floor tour** captures four directions per room and submits requests sequentially after showing the total image count. Stop after current image prevents remaining requests; it cannot undo the current provider charge. Leaving Explore also stops further tour requests after the current one. Completed images are grouped by tour and room: change rooms, look left/right, or drag horizontally to select another direction. This older Explore feature is a linked flat-viewpoint tour. The separate **AI tour** tool provides spherical panorama capture/viewing and pilot-gated generation; neither is a continuous AI-generated 3D world. Independent images may differ in style, objects and dimensions. Return to the real model to walk and look freely.
 
 ### Connect multiple AI providers privately
 
@@ -75,7 +98,7 @@ Home and CAD geometry share the project document, floor selection, undo/redo his
 
 In Model mode: **L** line, **R** rectangle, **C** circle, **T** move, **E** rotate, **S** scale, **Enter** finish path, **Esc** cancel, **Ctrl+D** duplicate, **Ctrl+G** group, **Ctrl+Shift+G** ungroup. Use **Ctrl+Z / Ctrl+Shift+Z** for undo/redo. Keyboard tools apply when focus is outside text fields/dialogs.
 
-For home design, choose Build to draw rooms/walls, Furnish to arrange items, and Import to trace a PNG/JPG/WebP blueprint manually. This release does not automatically turn an image into a measured building model.
+For home design, choose Build to draw rooms/walls, Furnish to arrange items, and Import to trace a PNG/JPG/WebP blueprint manually. For the new calibrated image/PDF detection and optional Cloudflare reconstruction workflow, use **Plan lab**. AI drafts require local validation and manual review; no accurate conversion is claimed from merely uploading an image.
 
 ## Saving on your PC
 
@@ -156,4 +179,4 @@ A static host can serve `dist/` after `npm ci`; this provides browser-only savin
 
 ## Contributing and licenses
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Original code and procedural furniture use the [MIT License](LICENSE). Dependencies: Three.js 0.170.0, three-bvh-csg 0.0.17, and three-mesh-bvh 0.8.3, all MIT; installation copies their license notices to `dist/vendor/`. Google Fonts retain their respective licenses. No SketchUp/Homestyler source, branding, proprietary models, or paid service entitlements are included.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Original code and procedural furniture use the [MIT License](LICENSE). Dependencies: Three.js 0.170.0, three-bvh-csg 0.0.17, and three-mesh-bvh 0.8.3 (MIT), plus PDF.js 5.4.394 (Apache-2.0); installation copies their license notices to `dist/vendor/`. Google Fonts retain their respective licenses. No SketchUp/Homestyler source, branding, proprietary models, or paid service entitlements are included.
