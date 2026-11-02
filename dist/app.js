@@ -1,3 +1,4 @@
+import {mountFreeModelStudio} from './free-model-studio.js';
 import {planningOverlay} from './planning-overlay.js';
 import {mountTourStudio} from './tour-studio.js';
 import {featuresSVG} from './building-features.js';
@@ -104,3 +105,5 @@ interiorStudio=mountInteriorStudio(studioBridge);
 planningStudio=mountPlanningStudio(studioBridge);
 
 mountTourStudio(studioBridge);
+
+mountFreeModelStudio(studioBridge);

@@ -5,3 +5,5 @@
 .lab-image{height:auto;max-height:none}.lab-card{background:#2b2b34;color:#e8e5ee;border-color:#494450}.lab-mini{border-radius:8px}.plan-lab textarea{background:#2c2b33;color:#e8e5ee;border-color:#494450}.lab-card a{color:#c8a8f0}.plan-lab select{background:#2c2b33;color:#e8e5ee;border:1px solid #494450}.lab-warning{background:#4b3a22;color:#ffe0a6}.plan-lab .field input{font-size:14px}.plan-lab h3{margin-top:22px}
 
 #lab-candidates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}#lab-candidates .lab-card{margin:0;padding:14px}#lab-candidates .lab-mini{height:150px}#lab-candidates p{font-size:12px}#lab-candidates .button{font-size:12px;padding:8px}@media(max-width:850px){#lab-candidates{grid-template-columns:1fr}}
+
+.lab-models,.quality-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.quality-compare figure{margin:0}.quality-compare img{width:100%;border-radius:8px}.quality-compare figcaption{font-size:12px;color:#aaa}.lab-models p{overflow-wrap:anywhere}@media(max-width:700px){.lab-models,.quality-compare{grid-template-columns:1fr}}
