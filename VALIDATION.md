@@ -1,4 +1,6 @@
-# Validation — Hestia 2.0 v0.3
+# Validation — Hestia 2.0 v0.5
+
+Current development build: **71 automated tests pass, 0 failures**. Current acceptance status and limits are recorded below; older release sections are retained as history.
 
 Verified on Windows with Node.js 24.22.1 and a Chromium browser. This records the core CAD/local workspace release; it is not a certification of full SketchUp Pro compatibility.
 
@@ -43,3 +45,52 @@ All **37 automated tests pass**. The additional checks cover walk movement throu
 Browser checks exercised eye-level navigation, room jumps, model-view capture, wall-mask capture, missing-key guidance, reference-image upload and finish application in the actual 3D scene. A separate local service labelled **TEST FIXTURE (no AI)** echoed screenshots only to exercise the gallery, comparison and four-directions-per-room tour UI. It makes no external requests and is not part of the delivered source. No fixture is presented as an AI render.
 
 No real provider key was configured, so live paid image quality, account access, quota and cross-view consistency remain unverified. The release provides configured API adapters and honest connection/error states rather than claiming a generated AI house exists. Linked AI viewpoint images are not a seamless 360 panorama or newly reconstructed 3D geometry.
+
+
+## Release 0.4 — planning / Vastu / spherical tour
+
+**Development release; the complete requested acceptance sequence is not yet passed.** Tested locally on Windows, Node 24.22.1, Chromium. Source contains no supplied private drawing or derived private model. Evidence files accompany the local deliverable outside this repository.
+
+### Automated checks
+
+60 tests pass. New cases cover calibrated raster line detection and uncertainty; rejection of empty AI conversion; Cloudflare structured JSON contracts and rejection of locked-wall proposals; baseline isolation, old-project compatibility, original restoration through history/disk; distinct constrained candidates, invalid openings, room/furniture overlap, blocked door approaches and coarse access connectivity; fixed plumbing locks; north rotation and reference frames; unknown inputs; commercial applicability; persistent conflict status after a chosen remedy; stale assessments; spherical source/result aspect validation; durable panorama revision/design metadata; Cloudflare img2img contract; local ComfyUI upload/queue/history/download contract and loopback restriction; and quota errors without fallback.
+
+**All provider test responses are mocked.** Header-only PNG fixtures in panorama adapter tests exercise transport and metadata; they are not generated images, decoded visual-quality evidence, or shipped tour assets.
+
+JavaScript syntax checks passed across dist, backend, server and vendor setup. Git whitespace check passed. PDF.js dependency/vendor preparation completed, with its worker, fonts, character maps and WASM copied locally.
+
+### Browser evidence
+
+- Imported a private manually traced copy of the supplied office plan into the actual editor; inspected the 3D building with 28 wall segments, 9 door openings and 12 fixed/drawn objects, including stairs, lift and five schematic cars. The 18 room surfaces include subdivisions of irregular waiting areas. It is labelled a **manual review draft**, not an automatically recognised or owner-approved model.
+- Ran the local detector on the original raster using a cropped building area and the 71 ft 11 in width chain: **43 uncertain line candidates, 0 reliably enclosed rectangular rooms**. This failure is explicitly reported; it does not approve an empty slab or substitute a furnished sample.
+- Selected a page from a synthetic PDF and rasterized it locally. Calibration at 10 m across 1000 pixels produced **5 candidate walls and 2 enclosed spaces**, shown as uncertain.
+- A separately labelled **synthetic QA fixture**, not the supplied plan, showed three different validated furnishing placements and unchanged walls. Applied one in the editor, Undo removed its furnishing, Redo restored it. A new tab reopened the saved project.
+- The synthetic fixture’s entrance changed from **S / Conflict** at north 0 degrees to **N / Aligned** at north 180 degrees using the real input form. Unknown central-obstruction input stayed Unknown. The fixed entrance report showed the constraint, lighting/access adjustment, optional belief-based symbolic motif, source and unresolved limitation.
+- The supplied office context excluded residential rules as **Not applicable**. A spherical model capture rendered in the continuous look-around viewer with no browser shader errors. The UI labelled it **no AI generation** and kept actual generation disabled until model/brief approval.
+
+### Acceptance matrix
+
+| Requested evidence | Current result |
+| --- | --- |
+| Original / detected overlay / approved 3D | Private overlay and manual editable draft produced; owner approval and automatic semantic accuracy pending |
+| Different alternatives with locked elements | Passed deterministic tests and synthetic browser fixture; not yet passed on an approved supplied-plan model |
+| North rotation / Unknown / commercial exclusion | Automated tests pass; rotation and commercial exclusion also checked in browser |
+| Fixed conflict, practical adjustment, sourced belief-based remedy, unresolved status | Passed synthetic browser fixture and status-handling tests |
+| User edits, history, save/reopen, original recovery | Automated persistence/isolation/history tests pass; apply/undo/redo/reopen checked in browser |
+| Real provider-generated panorama tied to selected revision | **Pending** — no Cloudflare token/account or local checkpoint configured |
+| Whole-floor AI tour quality | **Pending** — intentionally gated behind real one-room approval |
+
+### Remaining limits
+
+The offline detector recognises straight raster line evidence and rectangular enclosures. It does not semantically identify arbitrary openings, curved/diagonal walls, stairs, lifts, cars or dimension text. Cloudflare vision is connected as a reviewable structured-draft adapter, but live recognition has not been tested. Manual rectangular subdivisions do not constitute a polygon/topology reconstruction engine. Schematic fixed features are not engineering geometry, and the private tracing leaves levels and exact opening widths for review.
+
+Local recommendations mainly change furnishings. Cloudflare proposals preserve existing room surface boundaries and walls in this implementation; broad partition redesign, polygon room changes and service feasibility are not solved. The coarse 0.2 m connectivity grid is not an accessibility, structural or fire-code check. A Vastu-oriented candidate may retain conflicts under locked constraints; no improvement or universal compliance score is promised.
+
+Panorama generation uses general img2img models and a geometry-conditioned spherical source. A successful 2:1 image is not proof of correct seams or dimensions. Paid adapters remain available for flat renders; the two new adapters are Cloudflare and local ComfyUI. Their free allocation/hardware requirements and setup are documented in AI-SETUP.md. No provider quota/billing access or real inference was exercised. Material inspection reads saved specifications, supports user corrections and labels stored AI estimates unverified; automatic visual material inference is not implemented.
+
+
+## Release 0.5 — curated Auto Free
+
+71 automated tests pass. New unit/integration cases cover curated allowlisting, required input/output modalities, unknown/nonzero price rejection, panorama size checks, real completed-job quality gates, task isolation, persisted approvals and revocation, catalogue failure/price-change blocking, pinned model choice, ImageRouter source-conditioned ephemeral output, quota failures without retries, OpenRouter zero-price caps, actual provider/model metadata, key-free HTTP responses and authenticated quality-write routes. All generated-image responses in automated tests are mocks; they do not establish actual model quality.
+
+Browser verification used the live public ImageRouter catalogue, which showed both shortlisted candidates at zero advertised price with image editing/custom size. The actual AI models panel showed both as needing real-output review, with no falsely approved model. The AI tour selector and Plan lab provider selector were checked. No ImageRouter/OpenRouter inference request was made without credentials, and no image-quality approval was preloaded. The source archive excludes keys, model-quality records and private plan data.

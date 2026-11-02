@@ -38,3 +38,11 @@ Implementation evidence is in `dist/cad-data.js`, `dist/cad-geometry.js`, `dist/
 5. Separate authenticated services for shared libraries, collaboration, geolocation and AI integrations, with explicit account/service configuration.
 
 This order is a development roadmap, not a statement that those capabilities already work. It includes no delivery-time estimate.
+
+## 0.4 planning and tour status
+
+See README and AI-SETUP.md for reviewed image/PDF detection, Cloudflare structured reconstruction/proposals, local candidate validation, baseline restoration, versioned Vastu rules, design briefs, schematic fixed objects, saved-specification material hover, spherical model capture and pilot-gated Cloudflare/ComfyUI panoramas. These supersede the earlier AI row for the new AI tour tool. Automatic polygon/topology reconstruction and broad structural redesign remain incomplete. Live Cloudflare and local ComfyUI inference remain unverified until configured.
+
+## 0.5 curated free AI
+
+Quality-gated ImageRouter shortlist (FLUX 2 Klein 4B, Qwen Image 2), per-request zero-price verification, task-specific local approvals/revocation, pinned floor-tour models and explicit provenance. Curated free OpenRouter vision is available separately for plan/design JSON proposals. Real provider image quality remains pending an actual generated and inspected output; no model is initially auto-approved.

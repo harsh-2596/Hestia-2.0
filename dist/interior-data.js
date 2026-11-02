@@ -39,7 +39,7 @@ export function roomStation(floor,room) {
 }
 export function sceneFingerprint(project,floor) {
   // A stable local change marker, not a security hash.
-  const text=JSON.stringify({floor,cad:project.cad?.entities,definitions:project.cad?.definitions});
+  const text=JSON.stringify({floor,brief:project.planning?.briefs?.[floor.id],uses:project.planning?.floors?.[floor.id]?.context?.roomUses,selected:project.planning?.floors?.[floor.id]?.selected,cad:project.cad?.entities,definitions:project.cad?.definitions});
   let hash=2166136261;for(let i=0;i<text.length;i++)hash=Math.imul(hash^text.charCodeAt(i),16777619);
   return (hash>>>0).toString(16);
 }
