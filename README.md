@@ -2,8 +2,31 @@
 
 A desktop-first browser app for floor plans, furnished interiors, and custom 3D models, with a local Node.js workspace that saves projects and component libraries on your PC.
 
-**Release 0.5: curated Auto Free image routing, OpenRouter free vision, reviewed plan reconstruction, constrained alternatives, sourced Vastu guidance and a spherical AI-tour workflow.** This is an independent project. It does **not** implement every SketchUp Pro or Homestyler feature. See [the feature matrix](FEATURES.md) for implemented tools, limitations, and remaining work.
+**Release 0.6: local polygon reconstruction, durable conversion stages, curated free-provider options, reviewed alternatives and a spherical AI-tour workflow.** This is an independent project. It does **not** implement every SketchUp Pro or Homestyler feature. See [the feature matrix](FEATURES.md) for implemented tools, limitations, and remaining work.
 
+
+## Resumable conversion (0.6)
+
+1. In **Plan lab → Detect**, load an image or selected PDF page and crop the building. Confirm two measurement endpoints and their separation. Example: **71′11″ = 21.9202 metres**, measured across 686 pixels in the supplied drawing. Dimensions and levels remain unconfirmed until reviewed.
+2. **Detect draft walls** runs on this PC. Nearby endpoints may snap only within 5 cm; uncertain lines, connections and raster enclosures need correction. Door arcs, car symbols, text and stair treads can create false boundaries. The canvas stays labelled **Partial draft · Review required**.
+3. **Save / resume conversion stages** creates a durable job. Progress is **Walls → Spaces → Openings → Fixed objects → Review**, with a separate room-label stage. Refresh loads saved geometry; explicitly resume interrupted local stages or select a provider and run one AI stage. Successful regions are preserved. There are no automatic inference retries or provider switches.
+4. AI regions are PNG crops at most 1024 pixels per side, tied to metre coordinates. Every request has a **60 second timeout and 1,500 output-token cap**. Invalid coordinates go to the correction queue. Failure retains the existing local model. Cloudflare uses non-thinking output for these compact extraction tasks; [provider parameter reference](https://developers.cloudflare.com/workers-ai/models/gemma-4-26b-a4b-it/).
+5. **Open draft in editor**, compare the source overlay and 3D view, then correct walls/openings in Build. **Review → Editable room polygons** edits room boundaries as structured JSON: optional local `points: [[x,z], ...]` and `holes` rings inside each room's `w/d` bounds. Self-intersections, repeated vertices, invalid holes and out-of-bounds points are rejected. Polygon surfaces, areas, previews, walkability and exports use that shared geometry; editing a surface does not implicitly move its independent wall endpoints.
+6. Review uncertain observations and fixed objects, recording corrections or exclusions with reasons. **Save corrected draft to conversion job** persists editor corrections with a revision check. Project saving, undo/redo and original restoration remain separate. On reopening, saved source images/calibration can supply the next AI stage without re-uploading.
+7. Confirm measurements and all building elements, then approve the original. Until then, alternatives and interior-image generation are blocked. Polygon editing is currently structured input, not a vertex-dragging tool; automatic complete semantic recognition of arbitrary drawings is not claimed.
+
+The backend stores geometry, stage results, diagnostics, correction queues and cropped regions privately under `.hestia-data/plan-jobs/`. Back up the whole data directory. Existing rectangle-only documents need no migration; missing polygon fields retain rectangular geometry. Incomplete conversion jobs remain partial across restarts.
+
+API (same-origin studio JSON writes, 16 MB maximum):
+
+| Request | Purpose |
+| --- | --- |
+| `POST /api/plan-jobs` with `{floor}` | Save a validated draft; start local stages in the background. |
+| `GET /api/plan-jobs/:id` | Read durable progress, geometry and diagnostics. |
+| `POST /api/plan-jobs/:id/resume` | Explicit `{stage:"local"}`, or `{stage:"labels"|"openings"|"features", provider:"cloudflare"|"openrouter", regions}`. Saved regions may be omitted on resume. |
+| `POST /api/plan-jobs/:id/corrections` with `{revision,floor}` | Persist corrections; reject stale revisions or active jobs. |
+
+Each AI region has `{image: "data:image/png;base64,...", x,z,w,d}` in calibrated metres. Include `Content-Type: application/json` and `X-Hestia-Client: studio` on POST. The retired whole-building `/api/advice` plan request returns 410; alternatives and design briefs retain their existing endpoints.
 
 ## Curated Auto Free (0.5)
 
@@ -15,7 +38,7 @@ Plan lab also offers curated free OpenRouter vision for analysis, alternative pr
 
 **[Cloudflare and ComfyUI configuration — complete setup steps](AI-SETUP.md)**. Auto Free is the initial tour selection; Cloudflare and ComfyUI remain available. The README and setup guide use placeholders, never private credentials.
 
-1. **Detect:** load PNG/JPEG/WebP or select a PDF page. Crop the building, select two known dimension endpoints (or enter pixel coordinates) and enter their measured separation. Run local line detection. Optional Cloudflare vision reconstructs semantic geometry from that calibrated crop. The crop is sent only when you click the Cloudflare action.
+1. **Detect:** load PNG/JPEG/WebP or select a PDF page. Crop the building, select two known dimension endpoints (or enter pixel coordinates) and enter their measured separation. Run local line detection. Local enclosure detection creates unclassified polygon surfaces. Optional, separate label/opening/fixed-object requests use calibrated cropped regions; the drawing is sent only when you explicitly run a selected-provider stage.
 2. **Review:** open the draft in the existing 2D/3D editor; correct walls, rooms, openings, missing drawn objects and measurements. Classify walls; unclassified walls remain locked. Fixed stairs, ramps, parking/vehicles, lift shafts, columns and services have schematic editable geometry. Empty slabs cannot be approved.
 3. **Approve:** confirm measurements and elements to save an unchanged baseline. Undo/redo, disk history, browser recovery and project exports remain available. Restore original creates an editable change without deleting alternatives.
 4. **Inputs:** confirm room purpose, entrance, occupancy, budget amount/currency/scope and allowed changes. Confirm north and record its source when known. An unconfirmed north produces Unknown directional findings; stairs’ UP labels never establish north.
@@ -25,7 +48,7 @@ Plan lab also offers curated free OpenRouter vision for analysis, alternative pr
 
 Version-1 documents remain loadable. New planning records use project version 2; the original model, variants, assessment context, reports, chosen responses, briefs and panorama approvals are separate records within the project. Image jobs are stored separately on disk.
 
-**Acceptance status:** deterministic logic and API contracts are tested. The supplied office plan remains a private, manually corrected review draft: local line detection found 43 candidates and no reliable enclosed rooms. Fully automatic semantic reconstruction, an owner-approved model, live provider panorama quality and whole-floor consistency are not yet verified. This is a development release, not full acceptance of every item in the requested plan.
+**Acceptance status:** deterministic logic and API contracts are tested. The supplied office plan remains a private, manually corrected review draft: local processing found 43 wall candidates and 9 valid but unclassified raster-space polygons; 2 ambiguous boundaries were queued for correction. Waiting areas and fixed objects remain incomplete. A live Cloudflare label stage completed with 89 output tokens; its labels remain unapproved. Fully automatic semantic reconstruction, an owner-approved model, live provider panorama quality and whole-floor consistency are not yet verified. This is a development release, not full acceptance of every item in the requested plan.
 
 ## Run locally
 
@@ -76,7 +99,7 @@ Reference API documentation: [OpenAI image editing](https://developers.openai.co
 
 | Workspace | Tools |
 | --- | --- |
-| Build | Rectangular rooms, angled straight walls, door/window openings, multiple independent floors, blueprint image import and manual scale calibration |
+| Build | Rectangular drawing and editable polygon room surfaces, angled straight walls, door/window openings, multiple independent floors, blueprint image import and manual scale calibration |
 | Furnish | 19 original procedural furniture types, search, thumbnails, dimensions, positioning, rotation, color, floor finishes, day/evening lighting |
 | Model → Create | Rectangle, circle, polygon, line/path, box, cylinder, sphere, curved pipe path; profile extrusion and offsets |
 | Model → Organize | Multi-selection, flat groups, linked component definitions, make unique, tags, visibility, locking, reusable PC component library |

@@ -1,3 +1,4 @@
+import {inRoom} from './room-geometry.js';
 // Shared validation and walk navigation. Geometry is in meters.
 export function validateFinish(finish) {
   if (!finish || typeof finish.src !== 'string' || finish.src.length > 1400000 ||
@@ -7,10 +8,7 @@ export function validateFinish(finish) {
   return finish;
 }
 export function insideFloor(floor, x, z, radius = .16) {
-  return floor.rooms.some(r => x >= r.x + radius && x <= r.x+r.w-radius && z >= r.z+radius && z <= r.z+r.d-radius) ||
-    // A shared room boundary or doorway must not become an invisible barrier.
-    [[-radius,0],[radius,0],[0,-radius],[0,radius]].every(([dx,dz]) => floor.rooms.some(r =>
-      x+dx >= r.x && x+dx <= r.x+r.w && z+dz >= r.z && z+dz <= r.z+r.d));
+  return [[0,0],[-radius,0],[radius,0],[0,-radius],[0,radius]].every(([dx,dz])=>floor.rooms.some(r=>inRoom(r,x+dx,z+dz)));
 }
 export function canWalk(floor, x, z, radius=.16) {
   if (!insideFloor(floor,x,z,radius)) return false;
@@ -35,6 +33,7 @@ export function roomStation(floor,room) {
   const cx=room.x+room.w/2,cz=room.z+room.d/2;
   for(const [dx,dz] of [[0,0],[.3,0],[-.3,0],[0,.3],[0,-.3],[.6,.6],[-.6,-.6]])
     if(canWalk(floor,cx+dx,cz+dz))return [cx+dx,1.6,cz+dz];
+  for(let z=room.z+.3;z<room.z+room.d;z+=.25)for(let x=room.x+.3;x<room.x+room.w;x+=.25)if(inRoom(room,x,z)&&canWalk(floor,x,z))return [x,1.6,z];
   return null;
 }
 export function sceneFingerprint(project,floor) {
