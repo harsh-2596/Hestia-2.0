@@ -28,3 +28,5 @@ test('panorama results require 2:1 dimensions and enough resolution',()=>{const 
 
 
 test('fixed plumbing fixtures are locked even without an explicit flag',()=>{const {f,c}=fixture();f.items.push(item('toilet',1,1));const v=clone(f);v.items[0].x=2;assert.equal(validateVariant(f,v,c).valid,false);});
+
+test('changed recommendation inputs prevent an old alternative restoring obsolete north',()=>{const {p,f,c}=fixture();approveOriginal(p,f,{measurements:true,elements:true});const r=clone(floorRecord(p,f.id));r.context=c;const variant=proposeAlternatives(f,c).proposals[0];r.context.north.degrees=90;r.contextRevision=1;setRecord(p,f.id,r);assert.throws(()=>applyAlternative(p,f.id,variant),/inputs changed/);assert.equal(floorRecord(p,f.id).context.north.degrees,90);});
