@@ -105,3 +105,8 @@ The adapter uploads the model capture, queues a standard image-to-image workflow
 - **AI geometry rejected:** no draft is installed. Correct the crop/scale, retry deliberately or trace/correct manually.
 - **Panorama rejected:** the result must be PNG with 2:1 dimensions, at least 512 × 256. Passing this check does not validate seams or geometry.
 - **Live validation status:** no Cloudflare token or ComfyUI checkpoint was configured during this release. No real AI panorama is claimed in the evidence.
+
+
+## Small conversion stages (0.6)
+
+Plan lab now sends separate calibrated room-label, opening and fixed-object tasks. Select Cloudflare or curated free OpenRouter explicitly, then run/resume that stage. Each crop is at most 1024 pixels per side, each request has a 60 second timeout and a 1,500 output-token cap. Successful crops and failed-stage diagnostics persist privately. Errors never trigger automatic inference retries or another provider. No API key is needed for local wall/space detection. Cloudflare disables thinking for these compact tasks; a live cropped-plan label request was verified, while semantic accuracy still requires review. General image generation retains its existing setup and limits.
