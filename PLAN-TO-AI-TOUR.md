@@ -22,7 +22,7 @@
 
 ## Create a design brief
 11. Open **Plan lab → Interior brief** (the tab can be selected directly after the original is approved). Choose a style such as *Quiet contemporary*; enter a verified ceiling height, materials, lighting, retained furnishings, and any custom instructions. **Approve design brief**. This locks the brief to the current layout fingerprint. Changing the floor later makes earlier panoramas stale.
-12. Optionally open **Item library** and arrange the sofa, bed set, TV, pantry slab and parking cars. Any changes to the scene after brief approval may require refreshing the brief and rerunning the tour.
+12. Before panorama generation, confirm **Item library** placement of the sofa, bed set, TV, pantry slab and parking cars. Ideally complete these placements **before** approving the design brief in step 11; if you edit the scene afterward, approve a fresh brief for the updated layout before generating an AI tour.
 
 ## Explore and generate AI tour
 13. Choose **Explore → Walkthrough → Enter walkthrough** to inspect the actual editable 3D scene at eye level. Use **WASD/arrow keys** to move, **drag** to look around, **Q/E** to turn. Exit walkthrough after checking walls and doors. This is the true free-moving 3D model.
