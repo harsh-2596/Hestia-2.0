@@ -13,6 +13,7 @@ export const CATALOG=[
 {type:'plant',name:'Indoor olive tree',category:'Decor',w:.65,d:.65,h:1.65,color:'#708466',price:130},
 {type:'lamp',name:'Orbit floor lamp',category:'Lighting',w:.45,d:.45,h:1.7,color:'#e4d1b6',price:180},
 {type:'bed',name:'Linen platform bed',category:'Bedroom',w:1.8,d:2.15,h:.65,color:'#ded5c6',price:950},
+{type:'bed_with_tables',name:'Bed with two bedside tables',category:'Bedroom',w:3.15,d:2.2,h:.78,color:'#ded5c6',price:1250},
 {type:'nightstand',name:'Oak bedside table',category:'Bedroom',w:.5,d:.45,h:.48,color:'#a9825c',price:160},
 {type:'wardrobe',name:'Linear wardrobe',category:'Bedroom',w:2,d:.62,h:2.25,color:'#c1af95',price:820},
 {type:'dining',name:'Gather dining table',category:'Dining',w:1.8,d:.9,h:.76,color:'#b58c60',price:640},
@@ -20,11 +21,13 @@ export const CATALOG=[
 {type:'cabinet',name:'Kitchen base cabinet',category:'Kitchen',w:1.2,d:.62,h:.9,color:'#aeb59f',price:390},
 {type:'island',name:'Stone kitchen island',category:'Kitchen',w:2,d:.9,h:.94,color:'#c6c0b3',price:1200},
 {type:'fridge',name:'Integrated refrigerator',category:'Kitchen',w:.7,d:.7,h:1.9,color:'#b2b7b6',price:780},
+{type:'pantry_counter',name:'Pantry cooking slab',category:'Kitchen',w:2.2,d:.65,h:.9,color:'#d1c7b8',price:380},
 {type:'bath',name:'Freestanding bath',category:'Bathroom',w:1.7,d:.78,h:.6,color:'#ecece7',price:740},
 {type:'vanity',name:'Floating oak vanity',category:'Bathroom',w:1.2,d:.5,h:.8,color:'#ad8660',price:490},
 {type:'toilet',name:'Compact toilet',category:'Bathroom',w:.4,d:.68,h:.75,color:'#eeeeea',price:250},
 {type:'desk',name:'Studio writing desk',category:'Office',w:1.4,d:.65,h:.75,color:'#a88462',price:320},
 {type:'shelf',name:'Open bookcase',category:'Office',w:1.2,d:.35,h:1.8,color:'#a88462',price:340},
+{type:'tv',name:'Wall-mounted television',category:'Electronics',w:1.35,d:.12,h:.78,color:'#222c34',price:450},
 {type:'car_compact',name:'Compact parking car',category:'Parking',w:1.65,d:3.75,h:1.48,color:'#82929a',price:0},
 {type:'car_sedan',name:'Modern parking sedan',category:'Parking',w:1.83,d:4.55,h:1.48,color:'#d9dde0',price:0}
 ];
