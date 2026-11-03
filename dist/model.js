@@ -24,7 +24,9 @@ export const CATALOG=[
 {type:'vanity',name:'Floating oak vanity',category:'Bathroom',w:1.2,d:.5,h:.8,color:'#ad8660',price:490},
 {type:'toilet',name:'Compact toilet',category:'Bathroom',w:.4,d:.68,h:.75,color:'#eeeeea',price:250},
 {type:'desk',name:'Studio writing desk',category:'Office',w:1.4,d:.65,h:.75,color:'#a88462',price:320},
-{type:'shelf',name:'Open bookcase',category:'Office',w:1.2,d:.35,h:1.8,color:'#a88462',price:340}
+{type:'shelf',name:'Open bookcase',category:'Office',w:1.2,d:.35,h:1.8,color:'#a88462',price:340},
+{type:'car_compact',name:'Compact parking car',category:'Parking',w:1.65,d:3.75,h:1.48,color:'#82929a',price:0},
+{type:'car_sedan',name:'Modern parking sedan',category:'Parking',w:1.83,d:4.55,h:1.48,color:'#d9dde0',price:0}
 ];
 export function item(type,x,z,rotation=0){const def=CATALOG.find(a=>a.type===type);if(!def)throw Error('Unknown furniture type');return{...def,id:uid(),x,z,rotation};}
 export function wall(x1,z1,x2,z2,openings=[]){return{id:uid(),x1,z1,x2,z2,height:2.7,thickness:.14,color:'#e8e5dc',openings};}
