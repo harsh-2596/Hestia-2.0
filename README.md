@@ -5,6 +5,12 @@ A desktop-first browser app for floor plans, furnished interiors, and custom 3D 
 **Release 0.6: local polygon reconstruction, durable conversion stages, curated free-provider options, reviewed alternatives and a spherical AI-tour workflow.** This is an independent project. It does **not** implement every SketchUp Pro or Homestyler feature. See [the feature matrix](FEATURES.md) for implemented tools, limitations, and remaining work.
 
 
+## Updated Item Library and semantic symbols (feature branch)
+
+The interface design remains unchanged; **Furniture library** is renamed **Item library**. It includes a wall-mounted TV, a bed with two side tables, a pantry cooking slab, and two parking cars alongside the existing three-seat sofa and simple stair geometry. **Plan lab → Save / resume conversion stages → Top-view symbols** uses a selected vision provider to propose TVs, sofas, bed sets, pantry slabs, parked cars, stairs and window symbols as calibrated, evidence-backed **review records**. Each proposal must be verified before placing an actual item or staircase; windows require an opening on the correct wall and do not alter walls automatically. These are an early semantic stage, not a proven automatic blueprint-to-3D reconstruction.
+
+For the full step-by-step experience, see **[Upload a PDF, review a 3D layout, and take an AI interior tour](PLAN-TO-AI-TOUR.md)**. Plan analysis with OpenRouter is distinct from panorama image generation.
+
 ## Resumable conversion (0.6)
 
 1. In **Plan lab → Detect**, load an image or selected PDF page. PDF pages are now rasterized losslessly for wall analysis; a smaller JPEG is kept only for the editable blueprint display. When a PDF loads, **Suggest plan-only crop** looks for a large orthogonal building footprint and, if supported, pre-fills an editable crop shown as a cyan dashed outline. **Always verify** that the proposed crop still includes the entire building, parking, ramps, guard room, lift, stairs and entrances; the title block, road legend and sheet border should be outside. Select **Use full sheet** or edit crop fields if the outline is incorrect. This heuristic may not work for rotated, irregular or densely layered plans, and it does **not** classify cars or doors as architectural objects. Confirm two measurement endpoints and their separation after selecting the region. Example: **71′11″ = 21.9202 metres**, measured across 686 pixels in the supplied drawing. Dimensions and levels remain unconfirmed until reviewed.
