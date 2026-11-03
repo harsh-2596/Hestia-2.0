@@ -49,6 +49,38 @@ export function mountPlanningStudio(b){let adviceProvider='cloudflare';let secti
   if(result)result.textContent='Previous detection cleared. Click Detect draft walls again.';
   draw();
  }
+ function setupPlanCrop(){
+  const status=$('#lab-crop-status');
+  const fields={x:$('#crop-x'),y:$('#crop-y'),w:$('#crop-w'),h:$('#crop-h')};
+  if(!status||!fields.x)return;
+  const setFields=rect=>{cropSelection={x:rect.x,y:rect.y,w:rect.w,h:rect.h};for(const [key,input] of Object.entries(fields))input.value=rect[key];};
+  const updated=()=>{invalidateDetectedWalls();draw();};
+  $('#lab-crop-suggest').onclick=()=>{
+    if(!pixelData){b.toast('Upload a plan before suggesting a crop.');return;}
+    const suggested=suggestPlanBounds(pixelData);
+    if(!suggested){status.textContent='No reliable outer footprint found. Keep the full sheet and enter a crop manually; do not assume the building fills the page.';b.toast('Automatic crop unavailable. Set crop boundaries manually.');return;}
+    cropSuggestion=suggested;setFields(suggested);
+    status.textContent='Suggested building-only region ('+Math.round(suggested.confidence*100)+'% line-pattern confidence). Verify all external walls, stairs, parking, guard room, access and ramps remain inside. Text and title blocks are not building walls.';
+    updated();
+  };
+  $('#lab-crop-full').onclick=()=>{
+    if(!pixelData)return;
+    cropSuggestion=null;setFields({x:0,y:0,w:image.width,h:image.height});
+    status.textContent='Full sheet selected. Title block, dimensions and paper border may be mistaken for building walls; prefer a verified plan-only crop.';
+    updated();
+  };
+  for(const input of Object.values(fields))input.addEventListener('change',()=>{
+    cropSuggestion=null;
+    cropSelection={x:Number(fields.x.value),y:Number(fields.y.value),w:Number(fields.w.value),h:Number(fields.h.value)};
+    status.textContent='Custom crop entered. Confirm it contains the complete building, parking, ramps and entrances.';
+    updated();
+  });
+  if(cropSuggestion){
+    status.textContent='Suggested building-only crop ('+Math.round(cropSuggestion.confidence*100)+'% line-pattern confidence). Confirm the footprint manually before running wall detection.';
+  }else if(cropSelection){
+    status.textContent='Previously selected plan crop restored; verify that no architecture was clipped.';
+  }
+ }
  function setupExclusions(){
   const canvas=$('#lab-image'),toggle=$('#lab-exclude-mode'),status=$('#lab-exclusion-status');
   if(!canvas||!toggle)return;
@@ -63,7 +95,7 @@ export function mountPlanningStudio(b){let adviceProvider='cloudflare';let secti
   canvas.addEventListener('pointercancel',()=>{excludeDrag=null;draw();});
   update();
  }
- function draw(){const canvas=$('#lab-image');if(!canvas||!image)return;if(canvas.width!==image.width)canvas.width=image.width;if(canvas.height!==image.height)canvas.height=image.height;const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0);ctx.fillStyle='rgba(201,64,54,.16)';ctx.strokeStyle='rgba(196,48,43,.95)';ctx.lineWidth=2;for(const r of excludedRegions){ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeRect(r.x,r.y,r.w,r.h);}if(excludeDrag){const a=excludeDrag.start,z=excludeDrag.end,x=Math.min(a.x,z.x),y=Math.min(a.y,z.y),w=Math.abs(a.x-z.x),h=Math.abs(a.y-z.y);ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);}ctx.strokeStyle='#e48228';ctx.lineWidth=3;for(const l of lines){ctx.beginPath();ctx.moveTo(l.axis==='h'?l.start:l.at,l.axis==='h'?l.at:l.start);ctx.lineTo(l.axis==='h'?l.end:l.at,l.axis==='h'?l.at:l.end);ctx.stroke();}for(const a of anchors){ctx.fillStyle='#9d43ff';ctx.beginPath();ctx.arc(a.x,a.y,6,0,Math.PI*2);ctx.fill();}}
+ function draw(){const canvas=$('#lab-image');if(!canvas||!image)return;if(canvas.width!==image.width)canvas.width=image.width;if(canvas.height!==image.height)canvas.height=image.height;const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0);ctx.fillStyle='rgba(201,64,54,.16)';ctx.strokeStyle='rgba(196,48,43,.95)';ctx.lineWidth=2;for(const r of excludedRegions){ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeRect(r.x,r.y,r.w,r.h);}if(excludeDrag){const a=excludeDrag.start,z=excludeDrag.end,x=Math.min(a.x,z.x),y=Math.min(a.y,z.y),w=Math.abs(a.x-z.x),h=Math.abs(a.y-z.y);ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);}ctx.strokeStyle='#e48228';ctx.lineWidth=3;for(const l of lines){ctx.beginPath();ctx.moveTo(l.axis==='h'?l.start:l.at,l.axis==='h'?l.at:l.start);ctx.lineTo(l.axis==='h'?l.end:l.at,l.axis==='h'?l.at:l.end);ctx.stroke();}const inputs=['crop-x','crop-y','crop-w','crop-h'].map(id=>$('#'+id));if(inputs.every(Boolean)){const values=inputs.map(inp=>Number(inp.value));if(values.every(Number.isFinite)&&values[2]>0&&values[3]>0){ctx.save();ctx.strokeStyle='#05a2a9';ctx.lineWidth=2;ctx.setLineDash([10,6]);ctx.strokeRect(values[0],values[1],values[2],values[3]);ctx.restore();}}for(const a of anchors){ctx.fillStyle='#9d43ff';ctx.beginPath();ctx.arc(a.x,a.y,6,0,Math.PI*2);ctx.fill();}}
  async function loadFile(input){if(!input)return;if(input.size>20*1024*1024)throw Error('Use a file under 20 MB.');if(input.type==='application/pdf'){const pdfjs=await import('./vendor/pdf.mjs');pdfjs.GlobalWorkerOptions.workerSrc='./vendor/pdf.worker.mjs';const pdf=await pdfjs.getDocument({data:new Uint8Array(await input.arrayBuffer()),isEvalSupported:false,cMapUrl:'./vendor/cmaps/',cMapPacked:true,standardFontDataUrl:'./vendor/standard_fonts/',wasmUrl:'./vendor/wasm/'}).promise;open('import');$('#lab-pdf').innerHTML=`${field('PDF page (1–'+pdf.numPages+')','lab-page',1,'number')}<button id="lab-page-open" class="button subtle">Open selected page</button>`;$('#lab-page-open').onclick=async()=>{try{const n=Number($('#lab-page').value);if(!Number.isInteger(n)||n<1||n>pdf.numPages)throw Error('Choose a valid page.');const page=await pdf.getPage(n),raw=page.getViewport({scale:1}),viewport=page.getViewport({scale:Math.min(2,1800/Math.max(raw.width,raw.height))}),canvas=document.createElement('canvas');canvas.width=viewport.width;canvas.height=viewport.height;await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;await loadImage(canvas.toDataURL('image/png'),'pdf');await pdf.destroy();}catch(e){b.toast(e.message);}};return;}if(!['image/png','image/jpeg','image/webp'].includes(input.type))throw Error('Choose PNG, JPEG, WebP or PDF.');const url=URL.createObjectURL(input);try{await loadImage(url,'image');}finally{URL.revokeObjectURL(url);}}
  async function loadImage(src,kind='image'){const raw=new Image();raw.src=src;await raw.decode();const canvas=document.createElement('canvas'),scale=Math.min(1,1800/Math.max(raw.width,raw.height));canvas.width=Math.round(raw.width*scale);canvas.height=Math.round(raw.height*scale);const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(raw,0,0,canvas.width,canvas.height);pixelData=ctx.getImageData(0,0,canvas.width,canvas.height);image=new Image();image.src=canvas.toDataURL('image/jpeg',.85);await image.decode();anchors=[];lines=[];draft=null;conversionId=null;excludedRegions=[];exclusionMode=false;excludeDrag=null;needsRedetect=false;sourceKind=kind;cropSuggestion=null;cropSelection=null;open('import');if(kind==='pdf')$('#lab-crop-suggest')?.click();}
  function miniPlan(f){const rooms=f.rooms;if(!rooms.length)return'';const x=Math.min(...rooms.map(r=>r.x)),z=Math.min(...rooms.map(r=>r.z)),w=Math.max(...rooms.map(r=>r.x+r.w))-x,d=Math.max(...rooms.map(r=>r.z+r.d))-z;return `<svg class="lab-mini" viewBox="${x-.3} ${z-.3} ${w+.6} ${d+.6}">${rooms.map(r=>`<path d="${roomPath(r)}" fill-rule="evenodd" fill="#ddd7c8" stroke="#756979" stroke-width=".04"/>`).join('')}${f.walls.map(w=>`<line x1="${w.x1}" y1="${w.z1}" x2="${w.x2}" y2="${w.z2}" stroke="#3c3644" stroke-width="${w.thickness}"/>`).join('')}${f.items.map(i=>`<rect x="${i.x-i.w/2}" y="${i.z-i.d/2}" width="${i.w}" height="${i.d}" fill="#9c7dbe" transform="rotate(${i.rotation} ${i.x} ${i.z})"/>`).join('')}</svg>`;}
