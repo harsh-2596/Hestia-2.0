@@ -50,6 +50,63 @@ export function mountPlanningStudio(b){let adviceProvider='cloudflare';let secti
   if(result)result.textContent='Previous detection cleared. Click Detect draft walls again.';
   draw();
  }
+
+ function pendingSymbolCards(f){
+  const rows=f.importReview?.pendingSymbols||[];
+  if(!rows.length)return '';
+  return '<h3>Architectural symbols — review before placing</h3><p>Top-view AI proposals are NOT walls. Confirm positions and dimensions against the original drawing. Windows must be associated with a real wall in Build before being marked resolved.</p>'+
+   rows.map(q=>{
+    const active=q.state==='unresolved',r=symbolRule(q.type);
+    const editable={type:q.type,x:q.x,z:q.z,w:q.w,d:q.d,rotation:q.rotation};
+    return '<article class="lab-card"><strong>'+esc(r?.label||q.type)+' · '+esc(q.state)+' · '+Math.round(q.confidence*100)+'% proposed confidence</strong>'+
+     '<p>'+esc(q.evidence)+'</p><p>Coordinates are calibrated metres from the plan crop. Edit only if you can verify the drawing.</p>'+
+     (active?'<textarea rows="4" data-symbol-edit="'+esc(q.id)+'">'+esc(JSON.stringify(editable,null,2))+'</textarea>':'<p>Reviewed — '+esc(q.reason||q.placedObjectId||'')+'</p>')+
+     (active&&q.type==='stairs'?'<label class="field">Confirmed stair rise (metres)<input type="number" min=".2" max="10" step=".05" placeholder="Required for 3D steps" data-symbol-height="'+esc(q.id)+'"></label>':'')+
+     (active&&q.type!=='window'?'<button class="button subtle" data-symbol-place="'+esc(q.id)+'">Place verified '+esc(r?.kind==='feature'?'stairs':'item')+' in 3D</button>':'')+
+     (active&&q.type==='window'?'<button class="button subtle" data-symbol-resolve="'+esc(q.id)+'">Mark window reviewed after manual wall edit</button>':'')+
+     (active?'<label class="field">Reason for manual resolution or exclusion<input data-symbol-reason="'+esc(q.id)+'" placeholder="Explain decision"></label><button class="button subtle" data-symbol-exclude="'+esc(q.id)+'">Exclude with reason</button>':'')+
+     '</article>';
+   }).join('');
+ }
+ function setupReviewSymbolHandlers(){
+  const current=id=>b.getFloor().importReview?.pendingSymbols?.find(q=>q.id===id);
+  const reason=id=>document.querySelector('[data-symbol-reason="'+id+'"]')?.value.trim()||'';
+  const saveReview=(id,status,why)=>{
+   if(!why)throw Error('A reason is required.');
+   if(b.mutate(p=>{const f=p.floors.find(f=>f.id===b.getFloorId()),q=f.importReview.pendingSymbols.find(q=>q.id===id);
+     if(!q||q.state!=='unresolved')throw Error('This symbol has already been reviewed.');
+     q.state=status;q.reason=why;
+   }))open('review');
+  };
+  document.querySelectorAll('[data-symbol-exclude]').forEach(btn=>btn.onclick=()=>{
+   try{saveReview(btn.dataset.symbolExclude,'excluded',reason(btn.dataset.symbolExclude));}catch(e){b.toast(e.message);}
+  });
+  document.querySelectorAll('[data-symbol-resolve]').forEach(btn=>btn.onclick=()=>{
+   const id=btn.dataset.symbolResolve;
+   try{saveReview(id,'resolved',reason(id));}catch(e){b.toast(e.message);}
+  });
+  document.querySelectorAll('[data-symbol-place]').forEach(btn=>btn.onclick=()=>{
+   try{
+    const id=btn.dataset.symbolPlace,source=current(id);if(!source||source.state!=='unresolved')throw Error('Symbol no longer needs review.');
+    const patch=JSON.parse(document.querySelector('[data-symbol-edit="'+id+'"]').value);
+    const q={...source,...patch},rule=symbolRule(q.type),spec=symbolPlacement(q);
+    if(!rule||!spec||rule.kind==='opening')throw Error('Select a supported item or staircase. Windows must be linked to walls manually.');
+    if(![q.x,q.z,q.w,q.d,q.rotation].every(v=>typeof v==='number'&&Number.isFinite(v))||q.w<.06||q.d<.06||q.w>12||q.d>12||Math.abs(q.rotation)>360||q.x< -200||q.z< -200||q.x+q.w>200||q.z+q.d>200)throw Error('Use valid plan coordinates, bounds and rotation.');
+    let stairHeight=null;
+    if(rule.kind==='feature'){const field=document.querySelector('[data-symbol-height="'+id+'"]');
+     if(!field||!field.value.trim())throw Error('Confirm the staircase rise before making 3D stairs.');
+     stairHeight=Number(field.value);if(!Number.isFinite(stairHeight)||stairHeight<.2||stairHeight>10)throw Error('Stair rise must be between 0.2 and 10 metres.');
+    }
+    const placed=rule.kind==='item'?item(spec.asset,spec.x,spec.z,spec.rotation):{id:uid(),type:'stairs',x:spec.x,z:spec.z,w:spec.w,d:spec.d,h:stairHeight,rotation:spec.rotation};
+    if(rule.kind==='item'){placed.w=spec.w;placed.d=spec.d;}
+    if(b.mutate(p=>{p.version=2;const f=p.floors.find(f=>f.id===b.getFloorId()),original=f.importReview.pendingSymbols.find(a=>a.id===id);
+      if(!original||original.state!=='unresolved')throw Error('Symbol was already reviewed.');
+      if(rule.kind==='item')f.items.push(placed);else{f.features ||= [];f.features.push(placed);}
+      Object.assign(original,{type:q.type,x:q.x,z:q.z,w:q.w,d:q.d,rotation:q.rotation,state:'placed',placedObjectId:placed.id});
+    })){b.toast('Symbol placed using editable Hestia 3D geometry.');open('review');}
+   }catch(e){b.toast(e.message);}
+  });
+ }
  function setupPlanCrop(){
   const status=$('#lab-crop-status');
   const fields={x:$('#crop-x'),y:$('#crop-y'),w:$('#crop-w'),h:$('#crop-h')};
