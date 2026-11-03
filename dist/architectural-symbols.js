@@ -5,6 +5,7 @@ export const SYMBOL_RULES=Object.freeze([
  {type:'sofa',label:'Three-seat sofa',asset:'sofa',kind:'item',cues:['long upholstered rectangle','three seating cushions and back/arm rests'],reject:['parallel load-bearing walls','series of staircase treads']},
  {type:'bed_with_tables',label:'Bed with two bedside tables',asset:'bed_with_tables',kind:'item',cues:['bed rectangle with pillow or blanket lines','two compact flanking nightstand rectangles'],reject:['three independent wall enclosed rooms']},
  {type:'pantry_counter',label:'Pantry slab or cooking counter',asset:'pantry_counter',kind:'item',cues:['pantry label','fixed narrow counter or slab against a wall'],reject:['counter not visibly present; mere room name is insufficient']},
+ {type:'car',label:'Car in parking bay',asset:'car_compact',kind:'item',cues:['recognizable overhead vehicle silhouette','windscreen, hood, roof and wheel outlines','aligned parking bay context'],reject:['parallel masonry wall lines','stair treads or door swing arcs']},
  {type:'stairs',label:'Staircase',asset:null,kind:'feature',cues:['regularly repeated parallel stair treads','stair boundary or central spine','UP or DN label (if visible)'],reject:['parking stall markings','dimension ticks','window mullions']},
  {type:'window',label:'Window opening',asset:null,kind:'opening',cues:['narrow parallel lines interrupt a bold wall','glazing frame or mullion within wall thickness'],reject:['standalone television','gap with door swing arc','dimension line']}
 ]);
