@@ -40,3 +40,12 @@ test('invalid calibration and non-architectural short symbol strokes are not pro
  assert.equal(r.summary.outerCandidates,0);
  assert.equal(r.frame,null);
 });
+
+test('parking-facing building can have a three-sided outer wall with an open frontage',()=>{
+ const input=[line('h',30,40,540),line('v',40,30,430),line('v',540,30,430),line('v',200,30,350)];
+ const r=interpretWallEvidence(input,{x:20,y:10,w:540,h:460},scale);
+ assert.equal(r.summary.outerCandidates,3);
+ assert.equal(r.frame.openFront,true);
+ assert.equal(r.walls[3].role,'inner_candidate');
+ assert.equal(r.gaps.length,0,'the open parking frontage is not automatically a window or door');
+});
