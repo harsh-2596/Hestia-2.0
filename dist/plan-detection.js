@@ -9,7 +9,54 @@ export function detectLines({data,width,height},crop={x:0,y:0,w:width,h:height},
  };scan(true);scan(false);
  const merged=[];for(const r of runs.sort((a,b)=>a.axis.localeCompare(b.axis)||a.at-b.at||a.start-b.start)){const g=merged.find(m=>m.axis===r.axis&&r.at-m.maxAt<=2&&Math.min(m.end,r.end)-Math.max(m.start,r.start)>.85*Math.min(m.end-m.start,r.end-r.start));if(g){g.maxAt=r.at;g.end=Math.max(g.end,r.end);g.start=Math.min(g.start,r.start);}else merged.push({...r,maxAt:r.at});}
  const suppressed=likelyTreadRuns(merged),candidates=merged.filter((_,i)=>!suppressed.has(i));
- const lines=[];const used=new Set();for(let i=0;i<candidates.length;i++){if(used.has(i))continue;const a=candidates[i];const j=candidates.findIndex((b,n)=>n>i&&!used.has(n)&&b.axis===a.axis&&b.at-a.maxAt>=3&&b.at-a.maxAt<=12&&Math.min(a.end,b.end)-Math.max(a.start,b.start)>.8*Math.min(a.end-a.start,b.end-b.start));if(j>=0){used.add(j);const b=candidates[j];lines.push({axis:a.axis,at:(a.at+b.maxAt)/2,start:Math.max(a.start,b.start),end:Math.min(a.end,b.end),thickness:b.maxAt-a.at,confidence:.7,evidence:'Parallel dark lines; could also be stairs or drawing annotations.'});}else if(a.maxAt-a.at>=2)lines.push({...a,at:(a.at+a.maxAt)/2,thickness:a.maxAt-a.at+1,confidence:.45,evidence:'Thick continuous line; classification unknown.'});}
+ // Pair wall faces by their actual shared span, not just 80% of both full runs.
+ // Window breaks and T-junctions cause one face to be shorter than its partner.
+ // Allow a run to contribute to multiple non-overlapping, supported wall segments.
+ const proposals=[];
+ for(let i=0;i<candidates.length;i++)for(let j=i+1;j<candidates.length;j++){
+  const a=candidates[i],b=candidates[j];
+  if(a.axis!==b.axis)continue;
+  const separation=b.at-a.maxAt;
+  if(separation<3||separation>14)continue;
+  const start=Math.max(a.start,b.start),end=Math.min(a.end,b.end),overlap=end-start;
+  const short=Math.min(a.end-a.start,b.end-b.start);
+  if(overlap<minLength||overlap<short*.62)continue;
+  proposals.push({i,j,start,end,separation,score:overlap/(1+separation*.015)});
+ }
+ proposals.sort((a,b)=>b.score-a.score);
+ const covered=candidates.map(()=>[]);
+ const uncovered=(start,end,parts)=>{
+  let result=[[start,end]];
+  for(const [a,b] of parts){result=result.flatMap(([x,y])=>b<=x||a>=y?[[x,y]]:[[x,Math.min(y,a)],[Math.max(x,b),y]].filter(([u,v])=>v-u>=minLength));}
+  return result;
+ };
+ const lines=[];
+ for(const p of proposals){
+  const a=candidates[p.i],b=candidates[p.j];
+  const av=uncovered(p.start,p.end,covered[p.i]),bv=uncovered(p.start,p.end,covered[p.j]);
+  for(const [as,ae] of av)for(const [bs,be] of bv){
+   const start=Math.max(as,bs),end=Math.min(ae,be);
+   if(end-start<minLength)continue;
+   covered[p.i].push([start,end]);covered[p.j].push([start,end]);
+   lines.push({axis:a.axis,at:(a.maxAt+b.at)/2,start,end,
+    thickness:Math.max(2,b.maxAt-a.at),
+    confidence:.76,evidence:'Parallel dark lines paired over a shared segment; geometry still requires review.'});
+  }
+ }
+ // A lone thick stroke may be a dimension, label, fixture, or actual wall.
+ // Retain only long strokes as weak evidence; never upgrade them to paired geometry.
+ for(let i=0;i<candidates.length;i++){
+  const a=candidates[i];if(a.maxAt-a.at<2)continue;
+  const parts=uncovered(a.start,a.end,covered[i]);
+  for(const [start,end] of parts){
+   if(end-start<Math.max(minLength*2,72))continue;
+   lines.push({axis:a.axis,at:(a.at+a.maxAt)/2,start,end,
+    thickness:a.maxAt-a.at+1,confidence:.25,
+    evidence:'Unpaired thick stroke; could be a wall, dimension, or symbol. Manual confirmation required.'});
+  }
+ }
+ // Keep the longest evidence first if the number of candidates exceeds the safety cap.
+ lines.sort((a,b)=>(b.end-b.start)-(a.end-a.start));
  const result=lines.slice(0,500);result.suppressedTreadRuns=suppressed.size;return result;
 }
 export function linesToFloor(lines,{metersPerPixel,origin={x:0,y:0},name='Detected floor'}){if(!Number.isFinite(metersPerPixel)||metersPerPixel<=0||metersPerPixel>.5)throw Error('Calibrate a known distance first.');const walls=lines.filter(l=>(l.end-l.start)*metersPerPixel>=.4).map(l=>{const a=l.axis==='h'?[l.start,l.at,l.end,l.at]:[l.at,l.start,l.at,l.end];return {...wall((a[0]-origin.x)*metersPerPixel,(a[1]-origin.y)*metersPerPixel,(a[2]-origin.x)*metersPerPixel,(a[3]-origin.y)*metersPerPixel),thickness:Math.max(.06,Math.min(.5,l.thickness*metersPerPixel)),classification:'unclassified',locked:true,detection:{confidence:l.confidence,evidence:l.evidence,reviewed:false,role:l.role||'unclassified',wallEvidence:l.evidence?.startsWith('Parallel dark lines')?'paired_wall_faces':'ambiguous_line'}};});return {id:uid(),name,elevation:0,rooms:[],walls,items:[],blueprint:null,features:[]};}
