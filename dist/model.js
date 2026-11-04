@@ -29,7 +29,8 @@ export const CATALOG=[
 {type:'shelf',name:'Open bookcase',category:'Office',w:1.2,d:.35,h:1.8,color:'#a88462',price:340},
 {type:'tv',name:'Wall-mounted television',category:'Electronics',w:1.35,d:.12,h:.78,color:'#222c34',price:450},
 {type:'car_compact',name:'Compact parking car',category:'Parking',w:1.65,d:3.75,h:1.48,color:'#82929a',price:0},
-{type:'car_sedan',name:'Modern parking sedan',category:'Parking',w:1.83,d:4.55,h:1.48,color:'#d9dde0',price:0}
+{type:'car_sedan',name:'Modern parking sedan',category:'Parking',w:1.83,d:4.55,h:1.48,color:'#d9dde0',price:0},
+{type:'stairs',name:'Straight staircase',category:'Architecture',w:1.3,d:3.6,h:2.7,color:'#bbb7ad',price:0}
 ];
 export function item(type,x,z,rotation=0){const def=CATALOG.find(a=>a.type===type);if(!def)throw Error('Unknown furniture type');return{...def,id:uid(),x,z,rotation};}
 export function wall(x1,z1,x2,z2,openings=[]){return{id:uid(),x1,z1,x2,z2,height:2.7,thickness:.14,color:'#e8e5dc',openings};}
