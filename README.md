@@ -11,6 +11,14 @@ The interface design remains unchanged; **Furniture library** is renamed **Item 
 
 For the full step-by-step experience, see **[Upload a PDF, review a 3D layout, and take an AI interior tour](PLAN-TO-AI-TOUR.md)**. Plan analysis with OpenRouter is distinct from panorama image generation.
 
+## 2D PDF-style navigation and wall correction feedback (feature branch)
+
+**2D viewport:** The floor plan starts centered and fit to the panel's actual aspect ratio. The **Hand** button in the 2D toolbar (shortcut **H**) enables left-click dragging anywhere, just like a PDF viewer. When zoomed in, dragging blank canvas with the Select tool also pans; dragging an actual item/room continues to move that object. Middle-button drag and Space + left-drag always pan. **Shift + mouse wheel** pans horizontally, the standard wheel pans a zoomed map, **Ctrl + wheel** zooms around the mouse position, and **Fit View** recenters the map. None of these camera operations edits room or wall coordinates.
+
+**Correction memory:** Deleting a *detected* wall stores a negative example ("not_wall"), and drawing a replacement wall on an imported plan stores a positive example ("missing_wall"). Labels are saved in the floor's `importReview.wallCorrections` and in the browser-local `hestia-wall-feedback-v1` corpus. The Plan Lab Review tab shows correction counts and can export the labeled data as JSON. On a future local detection of the **same source image**, matching negative wall segments are omitted; unrelated plans are **not** auto-modified. All geometry remains subject to user review.
+
+**This is correction-memory / supervised feedback, not reinforcement learning or AI-weight training.** A future training pipeline can use the exported examples with privacy controls, held-out test plans, and human review. Do not assume every deletion is a reliable wall-negative label; if a wall is removed for design reasons instead, the user should review the stored correction before reuse. No training data is sent to an external model by this feature.
+
 ## Architectural wall evidence (feature branch)
 
 Plan Lab uses the calibrated original image and the local paired-line detector to propose **one centerline per double-line wall**, with thickness inferred from the line spacing. **Outer candidates** appear **red**, **inner candidates** appear **blue** when a coherent building frame is supported, and **unclassified evidence** remains **orange**. The detector can identify a complete rectangular envelope or a conservative **open-front U-shaped perimeter** (e.g., the parking-facing frontage) without inventing a missing fourth wall. These labels are *unapproved hypotheses*, not construction or load-bearing classifications.
