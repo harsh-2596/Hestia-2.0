@@ -23,7 +23,21 @@ export function interpretWallEvidence(lines,crop,metresPerPixel){
    if(!frame||area>frame.area)frame={top:top.index,bottom:bottom.index,left:left.index,right:right.index,area,x:left.at,y:top.at,w:right.at-left.at,h:bottom.at-top.at};
   }
  }
- const outer=new Set(frame?[frame.top,frame.bottom,frame.left,frame.right]:[]);
+ // Many real ground floors have an open parking/entrance frontage, not a closed southern wall.
+ // Admit a partial U-envelope only if it hugs the crop's top and both sides; never close the open side.
+ if(!frame){
+  for(const top of horiz)for(const left of vert)for(const right of vert){
+   if(right.at<=left.at||top.at>crop.y+crop.h*.17||top.at<crop.y-crop.h*.03)continue;
+   if(left.at>crop.x+crop.w*.14||right.at<crop.x+crop.w*.86)continue;
+   if(Math.abs(top.start-left.at)>tol||Math.abs(top.end-right.at)>tol)continue;
+   if(Math.abs(left.start-top.at)>tol||Math.abs(right.start-top.at)>tol)continue;
+   const minDepth=Math.min(left.end-left.start,right.end-right.start);
+   if(minDepth<crop.h*.57||Math.abs((left.end-left.start)-(right.end-right.start))>crop.h*.25)continue;
+   const area=(right.at-left.at)*minDepth;
+   if(!frame||area>frame.area)frame={top:top.index,left:left.index,right:right.index,area,x:left.at,y:top.at,w:right.at-left.at,h:minDepth,openFront:true};
+  }
+ }
+ const outer=new Set(frame?[frame.top,frame.bottom,frame.left,frame.right].filter(Number.isInteger):[]);
  const wallLabels=lines.map((l,index)=>{
   const inside=frame&&(l.axis==='h'?l.at>frame.y+tol&&l.at<frame.y+frame.h-tol&&l.start>=frame.x-tol&&l.end<=frame.x+frame.w+tol:
    l.axis==='v'&&l.at>frame.x+tol&&l.at<frame.x+frame.w-tol&&l.start>=frame.y-tol&&l.end<=frame.y+frame.h+tol);
@@ -44,7 +58,7 @@ export function interpretWallEvidence(lines,crop,metresPerPixel){
    evidence:'Collinear wall segments have an intentional-looking gap; inspect for a door swing or glazing marker.'});
   if(gaps.length>=100)break;
  }
- return {walls:wallLabels,frame:frame?{x:frame.x,y:frame.y,w:frame.w,h:frame.h,confidence:'requires_review'}:null,gaps:gaps.slice(0,100),
+ return {walls:wallLabels,frame:frame?{x:frame.x,y:frame.y,w:frame.w,h:frame.h,openFront:!!frame.openFront,confidence:'requires_review'}:null,gaps:gaps.slice(0,100),
   summary:{pairedCandidates:paired.length,outerCandidates:outer.size,innerCandidates:wallLabels.filter(w=>w.role==='inner_candidate').length,
    unclassified:wallLabels.filter(w=>w.role==='unclassified').length,gapCandidates:Math.min(100,gaps.length)}};
 }
